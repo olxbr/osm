@@ -22,6 +22,14 @@ h1 {
   margin-bottom: 30px;
 }
 
+h2 {
+  font-size: 2em;
+  letter-spacing: -1.4px;
+  line-height: 0.9em;
+  margin: 0;
+  margin-bottom: 30px;
+}
+
 .app {
   padding: 20px;
 }
@@ -45,4 +53,9 @@ button:hover {
 
 button:active {
   background-color: #d2d2d2;
+}
+
+.box {
+  display: block;
+  margin-bottom: 30px;
 }

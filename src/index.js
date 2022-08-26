@@ -1,18 +1,24 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './styles/index.css';
-import App from './App';
+import { BrowserRouter as Router } from "react-router-dom";
 import { PublicClientApplication } from "@azure/msal-browser";
-import { MsalProvider } from "@azure/msal-react";
-import { msalConfig } from "./authConfig";
+import { msalConfig } from "./config";
+import App from './App';
+import './index.css';
 
 const msalInstance = new PublicClientApplication(msalConfig);
+
+if (!msalInstance.getActiveAccount() && msalInstance.getAllAccounts().length > 0) {
+  msalInstance.setActiveAccount(msalInstance.getAllAccounts()[0]);
+}
+
+msalInstance.enableAccountStorageEvents();
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <MsalProvider instance={msalInstance}>
-      <App />
-    </MsalProvider>
+    <Router>
+      <App msalInstance={msalInstance} />
+    </Router>
   </React.StrictMode>
 );

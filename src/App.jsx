@@ -1,37 +1,41 @@
+import React from "react";
+import { Switch, Route, useHistory } from "react-router-dom";
+import { observer } from "mobx-react-lite"
 import {
+  MsalProvider,
   AuthenticatedTemplate,
-  // UnauthenticatedTemplate,
-  useMsal,
-  useIsAuthenticated
+  UnauthenticatedTemplate
 } from "@azure/msal-react";
-import { loginRequest } from "./authConfig";
-import { Profile } from "./components";
+import { CustomNavigationClient } from "./utils/NavigationClient";
+import { Layout } from "./components";
+import { Login, Home } from "./pages";
+import { S3Tool } from "./pages/S3Tool";
 
-const App = () => {
-  const isAuthenticated = useIsAuthenticated();
-  const { instance } = useMsal();
-
-  const handleLogin = () => {
-    instance.loginRedirect(loginRequest).catch(e => console.log(e));
-  }
-
-  const handleLogout = () => {
-    instance.logoutRedirect({ postLogoutRedirectUri: "/" });
-  }
+const App = observer(({ msalInstance }) => {
+  const history = useHistory();
+  const navigationClient = new CustomNavigationClient(history);
+  msalInstance.setNavigationClient(navigationClient);
 
   return (
-    <div className="app">
-      <h1>Olx<br />Security<br />Manager</h1>
+    <MsalProvider instance={msalInstance}>
+      <UnauthenticatedTemplate>
+        <Login />
+      </UnauthenticatedTemplate>
+
       <AuthenticatedTemplate>
-        <Profile />
+        <Layout>
+          <Switch>
+            <Route path="/s3-tool">
+              <S3Tool />
+            </Route>
+            <Route path="/">
+              <Home />
+            </Route>
+          </Switch>
+        </Layout>
       </AuthenticatedTemplate>
-      <div className="login-box">
-        {isAuthenticated
-          ? <button onClick={handleLogout}>Sign-out</button>
-          : <button onClick={handleLogin}>Sign-in</button>}
-      </div>
-    </div>
+    </MsalProvider>
   );
-}
+});
 
 export default App;
