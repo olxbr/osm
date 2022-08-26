@@ -57,3 +57,16 @@ export const loginRequest = {
 export const graphConfig = {
   graphMeEndpoint: "Enter_the_Graph_Endpoint_Herev1.0/me"
 };
+
+/**
+ * OSM Config Object
+ */
+export const osmConfig = {
+  "apiUrl": "OSM_API_Gateway_URL",
+  "services": [
+    {
+      "name": "Example Service",
+      "url": "/example-service"
+    }
+  ]
+};
