@@ -63,10 +63,7 @@ export const graphConfig = {
  */
 export const osmConfig = {
   "apiUrl": "OSM_API_Gateway_URL",
-  "services": [
-    {
-      "name": "Example Service",
-      "url": "/example-service"
-    }
+  "awsAccounts": [
+    { "name": "Account 01", "id": "999999" }
   ]
 };
