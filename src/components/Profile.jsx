@@ -3,20 +3,19 @@ import {
   MenuTrigger,
   ActionButton,
   Menu,
-  Item,
-  Section
+  Item
 } from '@adobe/react-spectrum';
 import User from '@spectrum-icons/workflow/User';
 import Light from '@spectrum-icons/workflow/Light';
 import Moon from '@spectrum-icons/workflow/Moon';
 import { observer } from "mobx-react-lite";
 import { useMsal } from "@azure/msal-react";
-import { useRootStore } from "../stores";
+import { useStores } from "../stores";
 import './Profile.css';
 
 export const Profile = observer(() => {
   const { instance, accounts } = useMsal();
-  const { uiStore } = useRootStore();
+  const { uiStore } = useStores();
 
   const logout = () => {
     instance.logoutRedirect({ postLogoutRedirectUri: "/" });
@@ -41,10 +40,8 @@ export const Profile = observer(() => {
           <User />
         </ActionButton>
         <Menu onAction={(key) => handleKey(key)} disabledKeys={['email']}>
-          <Section title="User">
-            <Item key="email">{accounts[0].username}</Item>
-            <Item key="sign-out">Sign-out</Item>
-          </Section>
+          <Item key="email">{accounts[0].username}</Item>
+          <Item key="sign-out">Sign-out</Item>
         </Menu>
       </MenuTrigger>
       <ActionButton marginStart="size-100" onPress={toggleColorScheme}>

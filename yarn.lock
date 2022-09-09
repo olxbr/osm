@@ -17,7 +17,7 @@
   resolved "https://registry.yarnpkg.com/@adobe/react-spectrum-workflow/-/react-spectrum-workflow-2.3.3.tgz#bb33e0d5789f60436992b7e90ac294284fbfb4e8"
   integrity sha512-idHEptv5d+puofqO3tiv+cbYR/QV7gUWKHMrHFuJS6zDwRyi3u8GR9BInRbEYp7ZvrLMW8XnNl6lXFSf8ubDQA==
 
-"@adobe/react-spectrum@^3.21.1":
+"@adobe/react-spectrum@3.21.1":
   version "3.21.1"
   resolved "https://registry.yarnpkg.com/@adobe/react-spectrum/-/react-spectrum-3.21.1.tgz#4318b49f3a123cf12abaa362e15f64b1e3663912"
   integrity sha512-qPWAcq1pXfyXJY+wy7UE4XbtGjSgsDcvv373mC3zo/dbEIZLhZy0+fT5H7J+03ucupREXSMBfQrrW6vvbNc0dw==
@@ -3624,6 +3624,11 @@
   integrity sha512-OAPJUAtgeINhh/TAlUID4QTs53Njm7xzddaVlEs/SXwgtiD1tW22zAB/W1wdqfrpmikgaWQ9Fw6Ws+hsiRm5Vg==
   dependencies:
     "@sinonjs/commons" "^1.7.0"
+
+"@spectrum-css/sidenav@^3.0.24":
+  version "3.0.24"
+  resolved "https://registry.yarnpkg.com/@spectrum-css/sidenav/-/sidenav-3.0.24.tgz#37ec2990a8a94ce9929ae30b3f0989e606b2ee8c"
+  integrity sha512-WADKJ6zr/WfUxXiUbG4BgZsLYqNHjHyuKCGg3ixhk3BT51Jpgm7sQ7YCdmbZGU/mZ3Mlbsc1ON+HENwRxmgelw==
 
 "@spectrum-icons/ui@^3.3.2":
   version "3.3.2"

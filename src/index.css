@@ -8,7 +8,7 @@ h1.logo {
   letter-spacing: -2px;
   line-height: 0.9em;
   margin: 0;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
 }
 
 h2.logo {
@@ -20,5 +20,5 @@ h2.logo {
 }
 
 .osm-box {
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
