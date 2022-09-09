@@ -10,18 +10,18 @@ import {
 import { CustomNavigationClient } from "./helpers";
 import { Layout } from "./components";
 import { SignIn, Home, S3Tools } from "./pages";
-import { useRootStore } from "./stores";
+import { useStores } from "./stores";
 
 export const routes = [
-  { path: "/s3-tools", name: "S3 Tools", Component: S3Tools },
-  { path: "/", name: "OSM", Component: Home }
+  { path: "/", name: "Home", Component: Home },
+  { path: "/s3-tools", name: "S3 Tools", Component: S3Tools }
 ];
 
 const App = observer(({ msalInstance }) => {
   const history = useHistory();
   const navigationClient = new CustomNavigationClient(history);
   msalInstance.setNavigationClient(navigationClient);
-  const { uiStore } = useRootStore();
+  const { uiStore } = useStores();
 
   return (
     <MsalProvider instance={msalInstance}>

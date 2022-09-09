@@ -1,30 +1,32 @@
 import { createContext, useContext } from "react";
+import AppStore from "./AppStore";
 import UIStore from "./UIStore";
-import S3ToolStore from "./S3ToolsStore";
+import S3ToolsStore from "./S3ToolsStore";
 
-class RootStore {
+class Stores {
   constructor() {
+    this.appStore = new AppStore(this);
     this.uiStore = new UIStore(this);
-    this.s3ToolStore = new S3ToolStore(this);
+    this.s3ToolsStore = new S3ToolsStore(this);
   }
 }
 
-let rootStore;
-const StoreContext = createContext();
+let stores;
+const StoresContext = createContext();
 
-export const RootStoreProvider = ({ children }) => {
-  const root = rootStore ?? new RootStore();
+export const StoresProvider = ({ children }) => {
+  const root = stores ?? new Stores();
   return (
-    <StoreContext.Provider value={root}>
+    <StoresContext.Provider value={root}>
       {children}
-    </StoreContext.Provider>
+    </StoresContext.Provider>
   );
 };
 
-export const useRootStore = () => {
-  const context = useContext(StoreContext);
+export const useStores = () => {
+  const context = useContext(StoresContext);
   if (context === undefined) {
-    throw new Error("useRootStore without RootStoreProvider");
+    throw new Error("useStores without RootStoreProvider");
   }
   return context;
 };

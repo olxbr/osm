@@ -1,4 +1,4 @@
-import { PublicClientApplication } from "@azure/msal-browser";
+import { PublicClientApplication, NavigationClient } from "@azure/msal-browser";
 import { msalConfig, loginRequest } from "../config";
 
 const msalInstance = new PublicClientApplication(msalConfig);
@@ -26,7 +26,27 @@ const requestAccessToken = async () => {
   }
 };
 
+class CustomNavigationClient extends NavigationClient {
+  constructor(history) {
+      super();
+      this.history = history;
+  }
+
+  async navigateInternal(url, options) {
+      const relativePath = url.replace(window.location.origin, '');
+
+      if (options.noHistory) {
+          this.history.replace(relativePath);
+      } else {
+          this.history.push(relativePath);
+      }
+
+      return false;
+  }
+}
+
 export {
   msalInstance,
-  requestAccessToken
+  requestAccessToken,
+  CustomNavigationClient
 };

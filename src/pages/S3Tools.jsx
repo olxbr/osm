@@ -1,15 +1,29 @@
 import React, { useState } from "react";
-import { Heading, Divider, ActionButton } from "@adobe/react-spectrum";
+import {
+  Heading,
+  Divider,
+  Button,
+  TextField,
+  Form,
+  ButtonGroup
+} from "@adobe/react-spectrum";
 import { observer } from "mobx-react-lite";
-import { useRootStore } from "../stores";
+import { useStores } from "../stores";
 
 export const S3Tools = observer(() => {
+  const { appStore, s3ToolsStore } = useStores();
   const [data, setData] = useState(null);
+  const [bucketName, setBucketName] = useState("");
 
-  const { s3ToolsStore } = useRootStore();
+  const params = { bucketName };
 
-  const handleS3Data = async () => {
-    const result = await s3ToolsStore.fetchS3Tools();
+  const handleS3Data = async (fn) => {
+    const result = await s3ToolsStore.fetchS3Tools({
+      account: appStore.account.id,
+      fn,
+      ...params
+    });
+    console.log(result);
     setData(result);
   }
 
@@ -19,11 +33,33 @@ export const S3Tools = observer(() => {
       <Divider size="M" marginBottom="size-400" />
 
       <div className="osm-box">
-        <ActionButton onPress={handleS3Data}>Call S3 Tool</ActionButton><br />
+        <Form marginBottom="size-200">
+          <TextField
+            label="Bucket Name"
+            value={bucketName}
+            onChange={setBucketName} />
+        </Form>
+        <div className="osm-box">
+          <ButtonGroup>
+            <Button
+              variant="primary"
+              onPress={() => handleS3Data("find-bucket")}
+            >
+              Call Find Bucket
+            </Button>
+            <Button
+              variant="primary"
+              onPress={() => handleS3Data("check-acls")}
+            >
+              Call Check ACLs
+            </Button>
+          </ButtonGroup>
+        </div>
         {data &&
           <code>
-            <strong>message:</strong><br />
-            {data.message}
+            account: {data?.event.queryStringParameters.account}<br />
+            fn: {data?.event.queryStringParameters.fn}<br />
+            bucketName: {data?.event.queryStringParameters.bucketName}
           </code>}
       </div>
     </div>
