@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Parameters:
+  RoleName:
+    Type: String
+    Default: org-osm-api
+    Description: Role name for all accounts
+  OsmLambdaMainAccountId:
+    Type: String
+    Default: '123456789012'
+    Description: Main account id where OSM lambda is located
+
+Resources:
+  OsmTrustRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref RoleName
+      Path: /
+      Policies:
+        - PolicyName: default
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:ListBucket
+                  - s3:ListAllMyBuckets
+                  - s3:GetBucketLocation
+                  - s3:GetObjectVersion
+                  - s3:GetLifecycleConfiguration
+                Resource: 'arn:aws:s3:::*'
+
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub
+                - 'arn:aws:iam::${MainAccountId}:root'
+                - { MainAccountId: !Ref OsmLambdaMainAccountId }
+            Action: sts:AssumeRole
+
+      Tags:
+        - Key: 'application'
+          Value: 'osm'
