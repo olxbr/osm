@@ -1,39 +1,41 @@
-import { makeAutoObservable } from "mobx";
-import { autoSave, requestAccessToken } from "../helpers";
-import { osmConfig } from "../config";
+import { makeAutoObservable } from 'mobx';
+import {
+  // autoSave,
+  requestAccessToken,
+} from '../helpers';
+import { osmApiUrl } from '../config';
 
 class S3ToolsStore {
   lastResult = null;
 
   constructor() {
     makeAutoObservable(this);
-    autoSave(this, "s3ToolsStore");
+    // autoSave(this, 'osm_S3ToolsStore');
   }
 
   fetchS3Tools = async (params) => {
     const accessToken = await requestAccessToken();
-    let result = null;
     params = new URLSearchParams(params).toString();
 
     try {
-      const res = await fetch(`${osmConfig.apiUrl}/s3-tools?${params}`, {
-        method: "GET",
+      const res = await fetch(`${osmApiUrl}/s3-tools?${params}`, {
+        method: 'GET',
         headers: {
-          "Authorization": `Bearer ${accessToken}`
-        }
+          Authorization: `Bearer ${accessToken}`,
+        },
       });
 
       if (!res.ok) {
-        throw new Error(res.statusText);
+        console.log(`Error fetching /s3-tools: ${res.statusText}`);
+        return null;
       }
 
-      result = await res.json();
-      this.lastResult = result;
+      return await res.json();
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
 
-    return result;
+    return null;
   };
 }
 

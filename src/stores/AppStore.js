@@ -1,21 +1,20 @@
-import { makeAutoObservable } from "mobx";
-import { autoSave } from "../helpers";
-import { osmConfig } from '../config';
+import { makeAutoObservable } from 'mobx';
+import { autoSave } from '../helpers';
+import { accountList } from '../config';
 
 class AppStore {
   account = null;
-  awsAccounts = osmConfig.awsAccounts;;
 
   constructor() {
     makeAutoObservable(this);
-    this.account = this.awsAccounts[0];
-    autoSave(this, "appStore");
+    this.account = accountList[0];
+    autoSave(this, 'osm_AppStore');
   }
 
   setAccount(accountId) {
-    for (let i=0, l=this.awsAccounts.length; i<l; i++) {
-      if (this.awsAccounts[i].id === accountId) {
-        this.account = this.awsAccounts[i];
+    for (let i = 0, l = accountList.length; i < l; i++) {
+      if (accountList[i].id === accountId) {
+        this.account = accountList[i];
         return;
       }
     }

@@ -1,18 +1,19 @@
-import { makeAutoObservable } from "mobx";
-import { autoSave } from "../helpers";
+import { makeAutoObservable } from 'mobx';
+import { autoSave } from '../helpers';
+
+const COLOR_SCHEMES = ['light', 'dark'];
 
 class UIStore {
-  colorSchemes = ["light", "dark"];
   colorScheme = null;
 
   constructor() {
     makeAutoObservable(this);
-    this.colorScheme = "light";
-    autoSave(this, "uiStore");
+    this.colorScheme = 'light';
+    autoSave(this, 'osm_UIStore');
   }
 
-  setColorScheme = (color)  => {
-    if (!this.colorSchemes.includes(color)) return;
+  setColorScheme = (color) => {
+    if (!COLOR_SCHEMES.includes(color)) return;
     this.colorScheme = color;
   };
 }
