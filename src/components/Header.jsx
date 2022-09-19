@@ -10,8 +10,6 @@ export const Header = observer(() => {
   const { appStore } = useStores();
   const location = useLocation();
 
-  console.log(location);
-
   return (
     <header className="osm-header">
       <Breadcrumbs isDisabled flex size="M">
