@@ -1,52 +1,41 @@
-import { PublicClientApplication, NavigationClient } from "@azure/msal-browser";
-import { msalConfig, loginRequest } from "../config";
+import { NavigationClient } from '@azure/msal-browser';
+import { loginRequest } from '../config';
 
-const msalInstance = new PublicClientApplication(msalConfig);
+const requestAccessToken = async (msalInstance) => {
+  const msalAccounts = msalInstance.getAllAccounts();
 
-if (!msalInstance.getActiveAccount() && msalInstance.getAllAccounts().length > 0) {
-  msalInstance.setActiveAccount(msalInstance.getAllAccounts()[0]);
-}
-
-msalInstance.enableAccountStorageEvents();
-
-const requestAccessToken = async () => {
-  const req = {
-    ...loginRequest,
-    account: msalInstance.getActiveAccount()
-  };
+  if (!msalInstance.getActiveAccount() && msalAccounts.length > 0) {
+    msalInstance.setActiveAccount(msalAccounts[0]);
+  }
 
   let res;
 
   try {
-    res = await msalInstance.acquireTokenSilent(req);
+    res = await msalInstance.acquireTokenSilent(loginRequest);
     return res.accessToken;
   } catch (e) {
-    res = await msalInstance.acquireTokenPopup(req);
+    res = await msalInstance.acquireTokenPopup(loginRequest);
     return res.accessToken;
   }
 };
 
 class CustomNavigationClient extends NavigationClient {
   constructor(history) {
-      super();
-      this.history = history;
+    super();
+    this.history = history;
   }
 
   async navigateInternal(url, options) {
-      const relativePath = url.replace(window.location.origin, '');
+    const relativePath = url.replace(window.location.origin, '');
 
-      if (options.noHistory) {
-          this.history.replace(relativePath);
-      } else {
-          this.history.push(relativePath);
-      }
+    if (options.noHistory) {
+      this.history.replace(relativePath);
+    } else {
+      this.history.push(relativePath);
+    }
 
-      return false;
+    return false;
   }
 }
 
-export {
-  msalInstance,
-  requestAccessToken,
-  CustomNavigationClient
-};
+export { requestAccessToken, CustomNavigationClient };
