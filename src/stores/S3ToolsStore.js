@@ -1,8 +1,5 @@
 import { makeAutoObservable } from 'mobx';
-import {
-  // autoSave,
-  requestAccessToken,
-} from '../helpers';
+// import { autoSave } from '../helpers';
 import { osmApiUrl } from '../config';
 
 class S3ToolsStore {
@@ -13,8 +10,7 @@ class S3ToolsStore {
     // autoSave(this, 'osm_S3ToolsStore');
   }
 
-  fetchS3Tools = async (params) => {
-    const accessToken = await requestAccessToken();
+  fetchS3Tools = async (accessToken, params) => {
     params = new URLSearchParams(params).toString();
 
     try {
