@@ -36,7 +36,6 @@ import Search from '@spectrum-icons/workflow/Search';
 import { observer } from 'mobx-react-lite';
 import { useMsal } from '@azure/msal-react';
 import { useStores } from '../../stores';
-import { awsAccounts } from '../../config';
 import { requestAccessToken } from '../../helpers';
 
 export const S3Home = observer(() => {
@@ -63,17 +62,17 @@ export const S3FindBucket = observer(() => {
     setDone(false);
 
     const accessToken = await requestAccessToken(instance);
-    let accounts = [appStore.account];
+    let awsAccounts = [appStore.account];
 
     if (appStore.account.id === 'allAccounts') {
-      accounts = awsAccounts;
+      awsAccounts = appStore.accounts;
     }
 
-    for (const acc of accounts) {
-      setCurrentAcc(acc);
+    for (const account of awsAccounts) {
+      setCurrentAcc(account);
 
       const result = await s3ToolsStore.fetchS3Tools(accessToken, {
-        account: acc.id,
+        account: account.id,
         fn: 'find-bucket',
         bucketName,
         searchBy,
@@ -83,8 +82,8 @@ export const S3FindBucket = observer(() => {
         setData((arr) => [
           ...arr,
           {
-            account: acc.name,
-            accountId: acc.id,
+            account: account.name,
+            accountId: account.id,
             buckets: result.buckets,
           },
         ]);

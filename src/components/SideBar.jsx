@@ -1,15 +1,26 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Picker, Item, Flex, Text } from '@adobe/react-spectrum';
 import { NavLink, useLocation } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
+import { useMsal } from '@azure/msal-react';
 import { useStores } from '../stores';
 import { routes } from '../App';
-import { accountList } from '../config';
+import { requestAccessToken } from '../helpers';
 import '@spectrum-css/sidenav';
 
 export const SideBar = observer(() => {
+  const { instance } = useMsal();
   const { appStore } = useStores();
   const location = useLocation();
+
+  useEffect(() => {
+    const getAccountList = async () => {
+      const accessToken = await requestAccessToken(instance);
+      appStore.fetchAccounts(accessToken);
+    };
+
+    getAccountList();
+  }, [appStore, instance]);
 
   const renderMenuItems = (items) => {
     return items.map((item, index) => {
@@ -64,7 +75,7 @@ export const SideBar = observer(() => {
           defaultSelectedKey={appStore.account.id}
           onSelectionChange={(id) => appStore.setAccount(id)}
           flex>
-          {accountList.map((account) => {
+          {appStore.accounts.map((account) => {
             return (
               <Item key={account.id} textValue={account.name}>
                 <Text>{account.name}</Text>

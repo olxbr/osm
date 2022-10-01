@@ -1,7 +1,8 @@
 import { autorun, set, toJS } from 'mobx';
 
-export const autoSave = (_this, name) => {
-  const storedJson = localStorage.getItem(name);
+export const autoSave = (_this, name, session = false) => {
+  const storage = session ? sessionStorage : localStorage;
+  const storedJson = storage.getItem(name);
 
   if (storedJson) {
     set(_this, JSON.parse(storedJson));
@@ -9,7 +10,7 @@ export const autoSave = (_this, name) => {
 
   autorun(() => {
     const value = toJS(_this);
-    localStorage.setItem(name, JSON.stringify(value));
+    storage.setItem(name, JSON.stringify(value));
   });
 };
 

@@ -1,10 +1,10 @@
-import React from "react";
-import { useLocation } from "react-router-dom";
-import { Breadcrumbs, Item } from "@adobe/react-spectrum";
-import { observer } from "mobx-react-lite";
-import { Profile } from "./Profile";
-import { useStores } from "../stores";
-import "./Header.css";
+import React from 'react';
+import { useLocation } from 'react-router-dom';
+import { Breadcrumbs, Item } from '@adobe/react-spectrum';
+import { observer } from 'mobx-react-lite';
+import { Profile } from './Profile';
+import { useStores } from '../stores';
+import './Header.css';
 
 export const Header = observer(() => {
   const { appStore } = useStores();
@@ -18,5 +18,5 @@ export const Header = observer(() => {
       </Breadcrumbs>
       <Profile />
     </header>
-  )
+  );
 });
