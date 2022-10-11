@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
@@ -50,7 +51,7 @@ type Account struct {
 
 func (p *AssumeRoleProvider) ListAccountsForOUs(ous []string) []Account {
 	accounts := []Account{}
-	cfg := p.AssumeRole(p.managementAccountRole, "us-east-1")
+	cfg := p.AssumeRole(p.managementAccountRole, os.Getenv("DEFAULT_REGION"))
 	ctx := context.Background()
 	cli := organizations.NewFromConfig(cfg)
 	for _, ou := range ous {

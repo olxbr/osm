@@ -9,12 +9,19 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	awscfg "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/olxbr/osm/osm-config-lambda/org"
 )
 
 func main() {
 	lambda.Start(LambdaHandler)
+}
+
+func getEnv(key, fallback string) string {
+    if value, ok := os.LookupEnv(key); ok {
+        return value
+    }
+    return fallback
 }
 
 func apiGatewayResponse(i interface{}, code int) events.APIGatewayProxyResponse {
@@ -25,15 +32,8 @@ func apiGatewayResponse(i interface{}, code int) events.APIGatewayProxyResponse 
 	return response
 }
 
-func getEnv(key, fallback string) string {
-    if value, ok := os.LookupEnv(key); ok {
-        return value
-    }
-    return fallback
-}
-
 func LambdaHandler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	cfg, err := awscfg.LoadDefaultConfig(context.TODO())
+	cfg, err := config.LoadDefaultConfig(context.TODO())
   	if err != nil {
 		log.Fatal(err)
 	}
