@@ -1,0 +1,144 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: >
+  AWS Infrastructure for Olx Security Manager SPA:
+    - S3 bucket
+    - CloudFront distribution
+    - API Gateway
+
+Parameters:
+  BucketName:
+    Type: String
+    Default: olx-security-manager
+    Description: OSM Bucket Name
+  TrustRoleName:
+    Type: String
+    Default:
+    Description: OSM Trust Role name
+  ConfigLambdaName:
+    Type: String
+    Default: osm-config-lambda
+    Description: Config Lambda Name
+  ManagementRoleArn:
+    Type: String
+    Description: Management Role ARN for config lambda
+
+Resources:
+  S3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Ref BucketName
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: 'AES256'
+
+  CFOriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    DependsOn:
+      - S3Bucket
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+    Comment: 'CF Origin Identity'
+
+  BucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref S3Bucket
+      PolicyDocument:
+        Id: MyPolicy
+        Version: 2012-10-17
+        Statement:
+          - Sid: PolicyForCloudFrontPrivateContent
+            Effect: Allow
+            Principal:
+              CanonicalUser: !GetAtt CFOriginAccessIdentity.S3CanonicalUserId
+            Action: 's3:GetObject*'
+            Resource: !Sub '${S3Bucket.Arn}/*'
+
+  CloudFrontDistribution:
+    Type: 'AWS::CloudFront::Distribution'
+    Properties:
+      DistributionConfig:
+        Origins:
+          - ConnectionAttempts: 3
+            ConnectionTimeout: 10
+            DomainName: !Sub '${BucketName}.s3.${AWS::Region}.amazonaws.com'
+            Id: !Sub '${BucketName}.s3.${AWS::Region}.amazonaws.com'
+            OriginPath: ''
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CFOriginAccessIdentity}'
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - 'HEAD'
+            - 'GET'
+            - 'OPTIONS'
+          CachedMethods:
+            - 'HEAD'
+            - 'GET'
+          Compress: true
+          CachePolicyId: '658327ea-f89d-4fab-a63d-7e88639e58f6'
+          SmoothStreaming: false
+          TargetOriginId: !Sub '${BucketName}.s3.${AWS::Region}.amazonaws.com'
+          ViewerProtocolPolicy: 'redirect-to-https'
+        CustomErrorResponses:
+          - ErrorCode: 403
+            ResponsePagePath: '/index.html'
+            ResponseCode: '200'
+            ErrorCachingMinTTL: 10
+        Comment: 'Olx Security Manager'
+        PriceClass: 'PriceClass_All'
+        Enabled: true
+        Restrictions:
+          GeoRestriction:
+            RestrictionType: 'none'
+        HttpVersion: 'http2'
+        DefaultRootObject: 'index.html'
+        IPV6Enabled: true
+
+  ApiGatewayV2Api:
+    Type: 'AWS::ApiGatewayV2::Api'
+    Properties:
+      ApiKeySelectionExpression: '$request.header.x-api-key'
+      ProtocolType: 'HTTP'
+      RouteSelectionExpression: '$request.method $request.path'
+      CorsConfiguration:
+        AllowCredentials: false
+        AllowHeaders:
+          - '*'
+        AllowMethods:
+          - 'GET'
+        AllowOrigins:
+          - 'http://localhost:3000'
+        MaxAge: 0
+      DisableExecuteApiEndpoint: false
+
+  LambdaFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Description: 'OSM Config Lambda'
+      Environment:
+        Variables:
+          DEFAULT_REGION: !Ref AWS::Region
+          TRUST_ROLE_NAME: !Ref TrustRoleName
+          MANAGEMENT_ACCOUNT_ROLE: !Ref ManagementRoleArn
+          SUPPORTED_OUS: ''
+      FunctionName: !Ref ConfigLambdaName
+      Handler: 'main'
+      Architectures:
+        - 'x86_64'
+      MemorySize: 128
+      Role: !Sub 'arn:aws:iam::${AWS::AccountId}:role/service-role/${ConfigLambdaName}-role'
+      Runtime: 'go1.x'
+      Timeout: 15
+      TracingConfig:
+        Mode: 'PassThrough'
+      EphemeralStorage:
+        Size: 512
