@@ -4,7 +4,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { useMsal } from '@azure/msal-react';
 import { useStores } from '../stores';
-import { routes } from '../App';
+import { routes } from '../routes';
 import { requestAccessToken } from '../helpers';
 import '@spectrum-css/sidenav';
 

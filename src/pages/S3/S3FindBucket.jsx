@@ -18,7 +18,6 @@ import {
   IllustratedMessage,
   Flex,
   ProgressBar,
-  ActionButton,
   Dialog,
   DialogContainer,
   Divider,
@@ -29,6 +28,8 @@ import {
   ButtonGroup,
   Well,
   ProgressCircle,
+  CheckboxGroup,
+  Checkbox,
 } from '@adobe/react-spectrum';
 import NoSearchResults from '@spectrum-icons/illustrations/NoSearchResults';
 import { ContentHeader } from '../../components/ContentHeader';
@@ -38,13 +39,10 @@ import { useMsal } from '@azure/msal-react';
 import { useStores } from '../../stores';
 import { requestAccessToken } from '../../helpers';
 
-export const S3Home = observer(() => {
-  return <ContentHeader title="S3 Tools" />;
-});
-
 export const S3FindBucket = observer(() => {
   const { instance } = useMsal();
   const { appStore, s3ToolsStore } = useStores();
+
   const [data, setData] = useState([]);
   const [currentAcc, setCurrentAcc] = useState(null);
   const [bucketName, setBucketName] = useState('');
@@ -52,6 +50,7 @@ export const S3FindBucket = observer(() => {
   const [done, setDone] = useState(false);
   const [dialog, setDialog] = useState(null);
   const [bucketInfo, setBucketInfo] = useState(null);
+  const [bucketFields, setBucketFields] = useState([]);
 
   const findBucket = async () => {
     if (bucketName.length < 3) {
@@ -136,17 +135,29 @@ export const S3FindBucket = observer(() => {
         backgroundColor="gray-200"
         marginBottom="size-300">
         <Form marginBottom="size-300" onSubmit={(e) => e.preventDefault()}>
-          <RadioGroup
-            isRequired
-            necessityIndicator="icon"
-            isEmphasized
-            label="Search by"
-            orientation="horizontal"
-            value={searchBy}
-            onChange={setSearchBy}>
-            <Radio value="fullname">Full Name</Radio>
-            <Radio value="prefix">Prefix</Radio>
-          </RadioGroup>
+          <Flex justifyContent="space-between">
+            <RadioGroup
+              isRequired
+              necessityIndicator="icon"
+              isEmphasized
+              label="Search by"
+              orientation="horizontal"
+              value={searchBy}
+              onChange={setSearchBy}>
+              <Radio value="fullname">Full Name</Radio>
+              <Radio value="prefix">Prefix</Radio>
+            </RadioGroup>
+
+            <CheckboxGroup
+              label="Additional Fields"
+              orientation="horizontal"
+              value={bucketFields}
+              onChange={setBucketFields}>
+              <Checkbox value="bucketStatus">Bucket Status</Checkbox>
+              <Checkbox value="policy">Policy</Checkbox>
+            </CheckboxGroup>
+          </Flex>
+
           <TextField
             label={`Bucket ${searchBy === 'prefix' ? 'Prefix' : 'Name'} (minimum of 3 characters)`}
             value={bucketName}
@@ -188,21 +199,17 @@ export const S3FindBucket = observer(() => {
                   <TableHeader>
                     <Column>Bucket name</Column>
                     <Column>Creation date</Column>
-                    <Column align="end"></Column>
                   </TableHeader>
                   <TableBody>
                     {item.buckets.map((bucket, index) => {
                       return (
                         <Row key={`${bucket.name}_${index}`}>
-                          <Cell>{bucket.name}</Cell>
-                          <Cell>{new Date(bucket.creation_date).toLocaleString()}</Cell>
                           <Cell>
-                            <ActionButton
-                              aria-label="Show Info"
-                              onPress={() => showBucketInfo(bucket.name, item.accountId)}>
-                              Info
-                            </ActionButton>
+                            <a href="#" onClick={() => showBucketInfo(bucket.name, item.accountId)}>
+                              {bucket.name}
+                            </a>
                           </Cell>
+                          <Cell>{new Date(bucket.creation_date).toLocaleString()}</Cell>
                         </Row>
                       );
                     })}
@@ -223,7 +230,7 @@ export const S3FindBucket = observer(() => {
                             <TabPanels marginTop="size-300">
                               <Item key="Status">
                                 <Well>
-                                  <pre>{bucketInfo.is_public ? 'Public' : 'Not Public'}</pre>
+                                  <pre>{bucketInfo.public_status}</pre>
                                 </Well>
                               </Item>
                               <Item key="Policy">
@@ -240,7 +247,7 @@ export const S3FindBucket = observer(() => {
                         )}
                       </Content>
                       <ButtonGroup>
-                        <Button variant="secondary" onPress={clearDialog}>
+                        <Button variant="link" onPress={clearDialog}>
                           Close
                         </Button>
                       </ButtonGroup>

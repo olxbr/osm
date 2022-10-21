@@ -1,3 +1,3 @@
 export * from './SignIn';
 export * from './Home';
-export * from './tools/S3';
+export * from './S3/S3Home';
