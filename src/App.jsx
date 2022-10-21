@@ -5,53 +5,9 @@ import { observer } from 'mobx-react-lite';
 import { MsalProvider, AuthenticatedTemplate, UnauthenticatedTemplate } from '@azure/msal-react';
 import { CustomNavigationClient } from './helpers';
 import { Layout } from './components';
-import { SignIn, Home } from './pages';
-import { S3Home, S3FindBucket } from './pages/tools/S3';
+import { SignIn } from './pages';
 import { useStores } from './stores';
-
-export const routes = [
-  {
-    name: 'Home',
-    path: '/',
-    Component: Home,
-  },
-  {
-    name: 'Tools',
-    isHeader: true,
-    items: [
-      {
-        name: 'S3',
-        path: '/tools/s3',
-        Component: S3Home,
-        items: [
-          {
-            name: 'Find Bucket',
-            path: '/tools/s3/find-bucket',
-            Component: S3FindBucket,
-          },
-        ],
-      },
-    ],
-  },
-  {
-    name: 'Services',
-    isHeader: true,
-    items: [
-      {
-        name: 'Security Hub',
-        path: '/services/security-hub',
-        Component: () => <div>Security Hub</div>,
-        items: [],
-      },
-      {
-        name: 'SIEM',
-        path: '/services/siem',
-        Component: () => <div>SIEM</div>,
-        items: [],
-      },
-    ],
-  },
-];
+import { routes } from './routes';
 
 const renderRoutes = (items, final = []) => {
   for (let item of items) {

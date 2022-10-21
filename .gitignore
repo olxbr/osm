@@ -22,6 +22,6 @@ yarn-debug.log*
 yarn-error.log*
 
 config.js
-config.local.js
+config.js.local
+config.js.prod
 TODO
-
