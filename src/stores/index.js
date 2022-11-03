@@ -1,7 +1,7 @@
-import { createContext, useContext } from "react";
-import AppStore from "./AppStore";
-import UIStore from "./UIStore";
-import S3ToolsStore from "./S3ToolsStore";
+import { createContext, useContext } from 'react';
+import AppStore from './AppStore';
+import UIStore from './UIStore';
+import S3ToolsStore from './S3ToolsStore';
 
 class Stores {
   constructor() {
@@ -16,17 +16,13 @@ const StoresContext = createContext();
 
 export const StoresProvider = ({ children }) => {
   const root = stores ?? new Stores();
-  return (
-    <StoresContext.Provider value={root}>
-      {children}
-    </StoresContext.Provider>
-  );
+  return <StoresContext.Provider value={root}>{children}</StoresContext.Provider>;
 };
 
 export const useStores = () => {
   const context = useContext(StoresContext);
   if (context === undefined) {
-    throw new Error("useStores without RootStoreProvider");
+    throw new Error('useStores without a root StoreProvider');
   }
   return context;
 };

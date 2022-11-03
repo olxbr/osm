@@ -3,14 +3,6 @@ body {
   margin: 0;
 }
 
-a {
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
 h1.logo {
   font-size: 6em;
   letter-spacing: -2px;
@@ -25,8 +17,4 @@ h2.logo {
   line-height: 0.9em;
   margin: 0;
   margin-bottom: 30px;
-}
-
-.osm-box {
-  margin-bottom: 20px;
 }

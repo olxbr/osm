@@ -10,7 +10,7 @@ import '@spectrum-css/sidenav';
 
 export const SideBar = observer(() => {
   const { instance } = useMsal();
-  const { appStore } = useStores();
+  const { appStore, s3ToolsStore } = useStores();
   const location = useLocation();
 
   useEffect(() => {
@@ -25,6 +25,10 @@ export const SideBar = observer(() => {
   const renderMenuItems = (items) => {
     return items.map((item, index) => {
       const selected = location.pathname === item.path ? ' is-selected' : '';
+
+      if (item.isHidden) {
+        return '';
+      }
 
       if (!item.isHeader) {
         return (
@@ -58,6 +62,12 @@ export const SideBar = observer(() => {
     });
   };
 
+  const handleAccountChange = (accountId) => {
+    appStore.setAccount(accountId);
+    s3ToolsStore.resetListBucketsData();
+    s3ToolsStore.resetFindBucketData();
+  };
+
   return (
     <div className="osm-sidebar">
       <h2 className="logo">
@@ -73,7 +83,7 @@ export const SideBar = observer(() => {
           aria-label="AWS Account"
           label="AWS Account"
           defaultSelectedKey={appStore.account.id}
-          onSelectionChange={(id) => appStore.setAccount(id)}
+          onSelectionChange={(id) => handleAccountChange(id)}
           flex>
           {appStore.accounts.map((account) => {
             return (

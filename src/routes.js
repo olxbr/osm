@@ -1,6 +1,7 @@
 import { S3Home, S3FindBucket, S3ListBuckets } from './pages/S3';
 import { IAMHome } from './pages/IAM';
 import { Home } from './pages';
+import { S3Bucket } from './pages/S3/S3Bucket';
 
 export const routes = [
   {
@@ -34,8 +35,14 @@ export const routes = [
           {
             name: 'List Buckets',
             description: 'List all buckets in an Account',
-            path: '/tools/s3/list-buckets',
+            path: '/tools/s3/buckets',
             Component: S3ListBuckets,
+          },
+          {
+            name: 'Bucket',
+            isHidden: true,
+            path: '/tools/s3/buckets/:bucketName',
+            Component: S3Bucket,
           },
         ],
       },

@@ -28,8 +28,7 @@ import {
   ButtonGroup,
   Well,
   ProgressCircle,
-  CheckboxGroup,
-  Checkbox,
+  ActionButton,
 } from '@adobe/react-spectrum';
 import NoSearchResults from '@spectrum-icons/illustrations/NoSearchResults';
 import { ContentHeader } from '../../components/ContentHeader';
@@ -42,22 +41,26 @@ import { requestAccessToken } from '../../helpers';
 export const S3FindBucket = observer(() => {
   const { instance } = useMsal();
   const { appStore, s3ToolsStore } = useStores();
+  const { data } = s3ToolsStore.findBucketData;
 
-  const [data, setData] = useState([]);
   const [currentAcc, setCurrentAcc] = useState(null);
   const [bucketName, setBucketName] = useState('');
   const [searchBy, setSearchBy] = useState('fullname');
   const [done, setDone] = useState(false);
   const [dialog, setDialog] = useState(null);
   const [bucketInfo, setBucketInfo] = useState(null);
-  const [bucketFields, setBucketFields] = useState([]);
 
   const findBucket = async () => {
     if (bucketName.length < 3) {
       return;
     }
 
-    setData([]);
+    s3ToolsStore.setFindBucketData({
+      account: appStore.account.name,
+      query: bucketName,
+      searchBy,
+      data: [],
+    });
     setDone(false);
 
     const accessToken = await requestAccessToken(instance);
@@ -70,22 +73,18 @@ export const S3FindBucket = observer(() => {
     for (const account of awsAccounts) {
       setCurrentAcc(account);
 
-      const result = await s3ToolsStore.fetchS3Tools(accessToken, {
+      const result = await s3ToolsStore.findBucket(accessToken, {
         account: account.id,
-        fn: 'find-bucket',
         bucketName,
         searchBy,
       });
 
       if (result && result.buckets.length > 0) {
-        setData((arr) => [
-          ...arr,
-          {
-            account: account.name,
-            accountId: account.id,
-            buckets: result.buckets,
-          },
-        ]);
+        s3ToolsStore.addFindBucketData({
+          account: account.name,
+          accountId: account.id,
+          buckets: result.buckets,
+        });
 
         if (searchBy === 'fullname') {
           break;
@@ -99,7 +98,6 @@ export const S3FindBucket = observer(() => {
 
   const showBucketInfo = async (name, accountId) => {
     setDialog('info');
-
     const accessToken = await requestAccessToken(instance);
 
     const result = await s3ToolsStore.fetchS3Tools(accessToken, {
@@ -147,22 +145,14 @@ export const S3FindBucket = observer(() => {
               <Radio value="fullname">Full Name</Radio>
               <Radio value="prefix">Prefix</Radio>
             </RadioGroup>
-
-            <CheckboxGroup
-              label="Additional Fields"
-              orientation="horizontal"
-              value={bucketFields}
-              onChange={setBucketFields}>
-              <Checkbox value="bucketStatus">Bucket Status</Checkbox>
-              <Checkbox value="policy">Policy</Checkbox>
-            </CheckboxGroup>
           </Flex>
 
           <TextField
-            label={`Bucket ${searchBy === 'prefix' ? 'Prefix' : 'Name'} (minimum of 3 characters)`}
+            label={`Bucket ${searchBy === 'prefix' ? 'Prefix' : 'Name'}`}
             value={bucketName}
             onChange={setBucketName}
             onKeyUp={(e) => e.key === 'Enter' && findBucket()}
+            description="Minimum of 3 characters"
           />
         </Form>
 
@@ -181,6 +171,26 @@ export const S3FindBucket = observer(() => {
             <ProgressBar aria-label="Loading" isIndeterminate />
           </Flex>
         </View>
+      )}
+
+      {data.length > 0 && (
+        <Well marginBottom="size-300">
+          <Flex alignItems="center">
+            <div>
+              <strong>Last search terms</strong>
+              <br />
+              <span style={{ display: 'inline-block', marginRight: '10px' }}>
+                Account: <em>{s3ToolsStore.findBucketData.account}</em>
+              </span>
+              <span style={{ display: 'inline-block', marginRight: '10px' }}>
+                Bucket {s3ToolsStore.findBucketData.searchBy === 'fullname' ? 'Name' : 'Prefix'}:{' '}
+                <em>{s3ToolsStore.findBucketData.query}</em>
+              </span>
+            </div>
+            <Divider orientation="vertical" size="S" marginStart="size-300" marginEnd="size-300" />
+            <ActionButton onPress={() => s3ToolsStore.resetFindBucketData()}>Clear</ActionButton>
+          </Flex>
+        </Well>
       )}
 
       {data.length > 0 &&
@@ -215,7 +225,7 @@ export const S3FindBucket = observer(() => {
                     })}
                   </TableBody>
                 </TableView>
-                <DialogContainer onDismiss={clearDialog} type="fullscreen">
+                <DialogContainer onDismiss={clearDialog}>
                   {dialog === 'info' && (
                     <Dialog>
                       <Heading>{bucketInfo ? bucketInfo.name : '...'}</Heading>

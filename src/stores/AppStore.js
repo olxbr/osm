@@ -9,7 +9,7 @@ class AppStore {
   constructor() {
     makeAutoObservable(this);
     this.account = { name: 'All Accounts', id: 'allAccounts' };
-    autoSave(this, 'osm_AppStore', true); // sessionStorage
+    autoSave(this, 'osm_AppStore', true); // true = sessionStorage
   }
 
   fetchConfig = async (accessToken, params = {}) => {
