@@ -7,7 +7,7 @@ Parameters:
     Description: Role name for all accounts
   OsmLambdaMainAccountId:
     Type: String
-    Default: '123456789012'
+    Default: ''
     Description: Main account id where OSM lambda is located
 
 Resources:
@@ -26,6 +26,16 @@ Resources:
                   - s3:Get*
                   - s3:List*
                 Resource: 'arn:aws:s3:::*'
+              - Effect: Allow
+                Action:
+                  - iam:ListRoles
+                  - iam:GetRole
+                  - iam:ListAttachedRolePolicies
+                  - iam:GetPolicy
+                  - iam:GetPolicyVersion
+                  - iam:ListRolePolicies
+                  - iam:GetRolePolic
+                Resource: 'arn:aws:iam:::*'
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
