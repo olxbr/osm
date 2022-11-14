@@ -42,21 +42,6 @@ export const S3ListBuckets = observer(() => {
     setLoading({ active, msg });
   };
 
-  const addSummary = () => {
-    const data = s3ToolsStore.listBucketsData;
-
-    data.buckets.map((b) => {
-      for (let s of s3ToolsStore.bucketsSummary.data) {
-        if (b.name === s.bucket) {
-          b.summary = s;
-        }
-      }
-      return b;
-    });
-
-    s3ToolsStore.setListBucketsData(data);
-  };
-
   const listBuckets = async (mode = 'latest') => {
     setDone(false);
     handleLoading(
@@ -78,13 +63,11 @@ export const S3ListBuckets = observer(() => {
     });
 
     s3ToolsStore.setListBucketsData(listResult);
-
     s3ToolsStore.setBucketsSummary({
       account: appStore.account.id,
-      data: summaryResult,
+      buckets: summaryResult,
     });
-
-    addSummary(summaryResult);
+    s3ToolsStore.mergeSummary();
 
     setDone(true);
     handleLoading(false);
@@ -98,7 +81,7 @@ export const S3ListBuckets = observer(() => {
 
   return (
     <View>
-      <ContentHeader title="List all buckets in an Account" />
+      <ContentHeader title="List buckets in selected account" />
       <View
         borderRadius="regular"
         paddingX="size-300"

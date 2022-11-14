@@ -177,7 +177,7 @@ export const S3FindBucket = observer(() => {
         <Well marginBottom="size-300">
           <Flex alignItems="center">
             <div>
-              <strong>Last search terms</strong>
+              <strong>Search terms:</strong>
               <br />
               <span style={{ display: 'inline-block', marginRight: '10px' }}>
                 Account: <em>{s3ToolsStore.findBucketData.account}</em>
@@ -207,15 +207,21 @@ export const S3FindBucket = observer(() => {
                   marginBottom="size-400"
                   aria-label={`${item.account} buckets`}>
                   <TableHeader>
-                    <Column>Bucket name</Column>
-                    <Column>Creation date</Column>
+                    <Column key="name" align="start">
+                      Bucket name
+                    </Column>
+                    <Column key="creation_date" align="end">
+                      Creation date
+                    </Column>
                   </TableHeader>
                   <TableBody>
                     {item.buckets.map((bucket, index) => {
                       return (
                         <Row key={`${bucket.name}_${index}`}>
                           <Cell>
-                            <a href="#" onClick={() => showBucketInfo(bucket.name, item.accountId)}>
+                            <a
+                              href={`#${bucket.name}`}
+                              onClick={() => showBucketInfo(bucket.name, item.accountId)}>
                               {bucket.name}
                             </a>
                           </Cell>

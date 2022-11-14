@@ -4586,6 +4586,11 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
+"@spectrum-css/card@^5.0.2":
+  version "5.0.2"
+  resolved "https://registry.yarnpkg.com/@spectrum-css/card/-/card-5.0.2.tgz#332dcf1d8cd0b0a6c5c3fe96bd00045d5d397469"
+  integrity sha512-INEI4TfWd3hi+pFr5pZhhOAnzVPPxc2Qx39BmKkNZ6TiZWo21ILzeJu+Tted97vsZXKzNlb04uXxW8F7emjc5A==
+
 "@spectrum-css/sidenav@^3.0.24":
   version "3.0.24"
   resolved "https://registry.yarnpkg.com/@spectrum-css/sidenav/-/sidenav-3.0.24.tgz#37ec2990a8a94ce9929ae30b3f0989e606b2ee8c"

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import { useParams, useHistory } from 'react-router-dom';
 import {
@@ -10,7 +10,16 @@ import {
   TextArea,
   RadioGroup,
   Radio,
+  DialogContainer,
+  Dialog,
+  Heading,
+  Divider,
+  Content,
+  ButtonGroup,
+  ProgressCircle,
+  IllustratedMessage,
 } from '@adobe/react-spectrum';
+import NotFound from '@spectrum-icons/illustrations/NotFound';
 import BackAndroid from '@spectrum-icons/workflow/BackAndroid';
 import CheckmarkCircle from '@spectrum-icons/workflow/CheckmarkCircle';
 import AlertCircleFilled from '@spectrum-icons/workflow/AlertCircleFilled';
@@ -20,6 +29,15 @@ import { useStores } from '../../stores';
 import { requestAccessToken } from '../../helpers';
 import { ContentHeader, FormFrame } from '../../components';
 
+const BucketNotFound = () => {
+  return (
+    <IllustratedMessage marginTop="size-400">
+      <NotFound />
+      <Heading>Bucket not found</Heading>
+    </IllustratedMessage>
+  );
+};
+
 export const S3Bucket = observer(() => {
   const history = useHistory();
   const { instance } = useMsal();
@@ -28,9 +46,11 @@ export const S3Bucket = observer(() => {
 
   const bucket = s3ToolsStore.getBucketFromList(bucketName);
 
-  const [reviewStatus, setReviewStatus] = useState(bucket.summary?.review_status ?? '');
-  const [notes, setNotes] = useState(bucket.summary?.notes ?? '');
+  const [reviewStatus, setReviewStatus] = useState(bucket?.summary?.review_status ?? '');
+  const [notes, setNotes] = useState(bucket?.summary?.notes ?? '');
   const [loading, setLoading] = useState(false);
+
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const sendBucketSummary = async () => {
     setLoading(true);
@@ -46,27 +66,17 @@ export const S3Bucket = observer(() => {
       { account: appStore.account.id }
     );
 
-    // if (result.message && result.message === 'success') {
-    //   s3ToolsStore.updateBucketSummary(bucketName, {
-    //     review_status: reviewStatus,
-    //     notes,
-    //   });
-    // }
+    if (result.message && result.message === 'success') {
+      s3ToolsStore.updateBucketSummary(bucketName, {
+        review_status: reviewStatus,
+        notes,
+      });
+      s3ToolsStore.mergeSummary();
+    }
 
     console.log(result);
     setLoading(false);
-  };
-
-  const getBucketSummary = async () => {
-    setLoading(true);
-    const accessToken = await requestAccessToken(instance);
-
-    const result = await s3ToolsStore.getBucketSummary(accessToken, {
-      bucketName,
-    });
-
-    console.log(result);
-    setLoading(false);
+    setDialogOpen(true);
   };
 
   const statusIcons = {
@@ -75,7 +85,22 @@ export const S3Bucket = observer(() => {
     reviewed: <CheckmarkCircle color="positive" />,
   };
 
-  useEffect(() => {}, [getBucketSummary]);
+  useEffect(() => {
+    const getBucketSummary = async () => {
+      setLoading(true);
+      const accessToken = await requestAccessToken(instance);
+
+      const result = await s3ToolsStore.getBucketSummary(accessToken, {
+        bucketName,
+        account: appStore.account.id,
+      });
+
+      console.log(result);
+      setLoading(false);
+    };
+
+    getBucketSummary();
+  }, [appStore, bucketName, instance, s3ToolsStore]);
 
   return (
     <View>
@@ -84,35 +109,62 @@ export const S3Bucket = observer(() => {
           <BackAndroid />
         </ActionButton>
         <Text marginEnd="size-200">{bucketName}</Text>
-        {statusIcons[reviewStatus]}
+        {bucket && statusIcons[reviewStatus]}
       </ContentHeader>
-      <FormFrame>
-        <RadioGroup
-          isRequired
-          necessityIndicator="icon"
-          isEmphasized
-          label="Review Status"
-          orientation="horizontal"
-          value={reviewStatus}
-          onChange={setReviewStatus}>
-          <Radio value="notReviewed">Without review</Radio>
-          <Radio value="withCaveats">Reviewed with caveats</Radio>
-          <Radio value="reviewed">Reviewed</Radio>
-        </RadioGroup>
 
-        <TextArea
-          label="Notes"
-          marginBottom="size-200"
-          value={notes}
-          onChange={setNotes}
-          description="Enter any notes about bucket review."
-        />
-        <Flex>
-          <Button variant="cta" onPress={sendBucketSummary}>
-            Send
-          </Button>
-        </Flex>
-      </FormFrame>
+      {bucket && (
+        <>
+          <FormFrame>
+            <RadioGroup
+              isRequired
+              necessityIndicator="icon"
+              isEmphasized
+              label="Review Status"
+              orientation="horizontal"
+              value={reviewStatus}
+              onChange={setReviewStatus}>
+              <Radio value="notReviewed">Without review</Radio>
+              <Radio value="withCaveats">Reviewed with caveats</Radio>
+              <Radio value="reviewed">Reviewed</Radio>
+            </RadioGroup>
+
+            <TextArea
+              label="Notes"
+              marginBottom="size-200"
+              value={notes}
+              onChange={setNotes}
+              description="Enter any notes about bucket review."
+            />
+            <Flex>
+              <Button variant="cta" onPress={sendBucketSummary} isDisabled={loading}>
+                Send
+              </Button>
+              {loading && <ProgressCircle aria-label="Loading…" size="M" isIndeterminate />}
+            </Flex>
+          </FormFrame>
+
+          <DialogContainer onDismiss={() => setDialogOpen(false)}>
+            {dialogOpen && (
+              <Dialog>
+                <Heading>Bucket updated</Heading>
+                <Divider />
+                <Content>
+                  <Text>
+                    <strong>{bucketName}</strong> successfuly updated
+                  </Text>
+                </Content>
+                <ButtonGroup>
+                  <Button variant="secondary" onPress={() => setDialogOpen(false)}>
+                    Close
+                  </Button>
+                </ButtonGroup>
+              </Dialog>
+            )}
+          </DialogContainer>
+        </>
+      )}
+
+      {!bucket && <BucketNotFound />}
     </View>
   );
 });

@@ -1,4 +1,4 @@
-import { makeAutoObservable, autorun } from 'mobx';
+import { makeAutoObservable } from 'mobx';
 import { autoSave } from '../helpers';
 import { osmApiUrl } from '../config';
 
@@ -15,7 +15,7 @@ class S3ToolsStore {
   };
   bucketsSummary = {
     account: null,
-    data: [],
+    buckets: [],
   };
 
   constructor() {
@@ -36,9 +36,7 @@ class S3ToolsStore {
 
       if (!res.ok) {
         console.log(`Error fetching /s3-tools: ${res.statusText}`);
-        return {
-          buckets: [],
-        };
+        return null;
       }
 
       return await res.json();
@@ -46,9 +44,7 @@ class S3ToolsStore {
       console.error(err);
     }
 
-    return {
-      buckets: [],
-    };
+    return null;
   }
 
   async putS3Tools(accessToken, body, params) {
@@ -78,12 +74,16 @@ class S3ToolsStore {
 
   async findBucket(accessToken, params) {
     params.fn = 'find-bucket';
-    return await this.fetchS3Tools(accessToken, params);
+    const data = await this.fetchS3Tools(accessToken, params);
+    if (!data) return { buckets: [] };
+    return data;
   }
 
   async listBuckets(accessToken, params) {
     params.fn = 'list-buckets';
-    return await this.fetchS3Tools(accessToken, params);
+    const data = await this.fetchS3Tools(accessToken, params);
+    if (!data) return { buckets: [] };
+    return data;
   }
 
   async listBucketsSummary(accessToken, params) {
@@ -119,6 +119,7 @@ class S3ToolsStore {
         return b;
       }
     }
+    return null;
   }
 
   resetListBucketsData() {
@@ -143,12 +144,40 @@ class S3ToolsStore {
   }
 
   updateBucketSummary(bucketName, summaryOpts) {
-    const data = { ...this.bucketsSummary };
-    data.buckets.map((b) => {
-      b = b.bucket === bucketName ? { ...b, summaryOpts } : b;
+    const { account, buckets } = this.bucketsSummary;
+    let bucketsClone = JSON.parse(JSON.stringify(buckets));
+
+    bucketsClone = bucketsClone.map((b) => {
+      if (b.bucket === bucketName) {
+        return { ...b, ...summaryOpts };
+      }
       return b;
     });
-    this.bucketsSummary = data;
+
+    this.setBucketsSummary({
+      account,
+      buckets: bucketsClone,
+    });
+  }
+
+  mergeSummary() {
+    const { account, updated_at, buckets } = this.listBucketsData;
+    let bucketsClone = JSON.parse(JSON.stringify(buckets));
+
+    bucketsClone.map((b) => {
+      for (let s of this.bucketsSummary.buckets) {
+        if (b.name === s.bucket) {
+          b.summary = s;
+        }
+      }
+      return b;
+    });
+
+    this.setListBucketsData({
+      account,
+      updated_at,
+      buckets: bucketsClone,
+    });
   }
 }
 
