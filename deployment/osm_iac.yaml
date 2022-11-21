@@ -13,15 +13,8 @@ Parameters:
     Description: OSM Bucket Name
   TrustRoleName:
     Type: String
-    Default:
+    Default: org-osm-api
     Description: OSM Trust Role name
-  ConfigLambdaName:
-    Type: String
-    Default: osm-config-lambda
-    Description: Config Lambda Name
-  ManagementRoleArn:
-    Type: String
-    Description: Management Role ARN for config lambda
 
 Resources:
   S3Bucket:
@@ -119,26 +112,3 @@ Resources:
           - 'http://localhost:3000'
         MaxAge: 0
       DisableExecuteApiEndpoint: false
-
-  LambdaFunction:
-    Type: 'AWS::Lambda::Function'
-    Properties:
-      Description: 'OSM Config Lambda'
-      Environment:
-        Variables:
-          DEFAULT_REGION: !Ref AWS::Region
-          TRUST_ROLE_NAME: !Ref TrustRoleName
-          MANAGEMENT_ACCOUNT_ROLE: !Ref ManagementRoleArn
-          SUPPORTED_OUS: ''
-      FunctionName: !Ref ConfigLambdaName
-      Handler: 'main'
-      Architectures:
-        - 'x86_64'
-      MemorySize: 128
-      Role: !Sub 'arn:aws:iam::${AWS::AccountId}:role/service-role/${ConfigLambdaName}-role'
-      Runtime: 'go1.x'
-      Timeout: 15
-      TracingConfig:
-        Mode: 'PassThrough'
-      EphemeralStorage:
-        Size: 512

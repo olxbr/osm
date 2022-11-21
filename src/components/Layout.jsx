@@ -5,16 +5,16 @@ import { SideBar, Header } from './';
 
 export const Layout = observer((props) => {
   return (
-    <Flex direction="row" height="100vh">
+    <Flex direction="row" height="100vh" gap="size-0">
       <View
         backgroundColor="gray-200"
         width="size-3000"
         minWidth="size-2400"
         padding="size-300"
-        overflow="scroll">
+        overflow="auto">
         <SideBar />
       </View>
-      <Flex direction="column" flex>
+      <Flex direction="column" gap="size-0" flex>
         <View
           paddingY="size-200"
           paddingX="size-400"
@@ -22,7 +22,7 @@ export const Layout = observer((props) => {
           borderBottomColor="gray-200">
           <Header />
         </View>
-        <View paddingY="size-200" paddingX="size-400" flex overflow="scroll">
+        <View paddingY="size-200" paddingX="size-400" flex overflow="auto">
           <main>{props.children}</main>
         </View>
       </Flex>

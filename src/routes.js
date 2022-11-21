@@ -19,6 +19,7 @@ export const routes = [
         description: 'Tools to analyze IAM Roles and Policies',
         path: '/tools/iam',
         Component: IAMHome,
+        items: []
       },
       {
         name: 'S3',
