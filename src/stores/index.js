@@ -1,13 +1,15 @@
 import { createContext, useContext } from 'react';
 import AppStore from './AppStore';
 import UIStore from './UIStore';
-import S3ToolsStore from './S3ToolsStore';
+import S3Store from './S3Store';
+import IAMStore from './IAMStore';
 
 class Stores {
   constructor() {
     this.appStore = new AppStore(this);
     this.uiStore = new UIStore(this);
-    this.s3ToolsStore = new S3ToolsStore(this);
+    this.s3Store = new S3Store(this);
+    this.iamStore = new IAMStore(this);
   }
 }
 
