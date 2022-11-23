@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-// import { useCollator } from 'react-aria';
 import { Link as RouterLink } from 'react-router-dom';
 import {
   View,
@@ -31,8 +30,8 @@ import { requestAccessToken } from '../../helpers';
 
 export const S3ListBuckets = observer(() => {
   const { instance } = useMsal();
-  const { appStore, s3ToolsStore } = useStores();
-  const { buckets, updated_at } = s3ToolsStore.listBucketsData;
+  const { appStore, s3Store } = useStores();
+  const { buckets, updated_at } = s3Store.listBucketsData;
 
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState({ active: false, msg: 'Loading...' });
@@ -48,26 +47,26 @@ export const S3ListBuckets = observer(() => {
       true,
       `${mode === 'latest' ? 'Listing' : 'Updating'} ${appStore.account.name} buckets...`
     );
-    s3ToolsStore.resetListBucketsData();
+    s3Store.resetListBucketsData();
 
     const accessToken = await requestAccessToken(instance);
 
-    const listResult = await s3ToolsStore.listBuckets(accessToken, {
+    const listResult = await s3Store.listBuckets(accessToken, {
       account: appStore.account.id,
       mode,
     });
 
     handleLoading(true, 'Get review data...');
-    const summaryResult = await s3ToolsStore.listBucketsSummary(accessToken, {
+    const summaryResult = await s3Store.listBucketsSummary(accessToken, {
       account: appStore.account.id,
     });
 
-    s3ToolsStore.setListBucketsData(listResult);
-    s3ToolsStore.setBucketsSummary({
+    s3Store.setListBucketsData(listResult);
+    s3Store.setBucketsSummary({
       account: appStore.account.id,
       buckets: summaryResult,
     });
-    s3ToolsStore.mergeSummary();
+    s3Store.mergeSummary();
 
     setDone(true);
     handleLoading(false);

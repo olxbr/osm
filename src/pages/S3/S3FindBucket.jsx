@@ -40,8 +40,8 @@ import { requestAccessToken } from '../../helpers';
 
 export const S3FindBucket = observer(() => {
   const { instance } = useMsal();
-  const { appStore, s3ToolsStore } = useStores();
-  const { data } = s3ToolsStore.findBucketData;
+  const { appStore, s3Store } = useStores();
+  const { data } = s3Store.findBucketData;
 
   const [currentAcc, setCurrentAcc] = useState(null);
   const [bucketName, setBucketName] = useState('');
@@ -55,7 +55,7 @@ export const S3FindBucket = observer(() => {
       return;
     }
 
-    s3ToolsStore.setFindBucketData({
+    s3Store.setFindBucketData({
       account: appStore.account.name,
       query: bucketName,
       searchBy,
@@ -73,14 +73,14 @@ export const S3FindBucket = observer(() => {
     for (const account of awsAccounts) {
       setCurrentAcc(account);
 
-      const result = await s3ToolsStore.findBucket(accessToken, {
+      const result = await s3Store.findBucket(accessToken, {
         account: account.id,
         bucketName,
         searchBy,
       });
 
       if (result && result.buckets.length > 0) {
-        s3ToolsStore.addFindBucketData({
+        s3Store.addFindBucketData({
           account: account.name,
           accountId: account.id,
           buckets: result.buckets,
@@ -100,7 +100,7 @@ export const S3FindBucket = observer(() => {
     setDialog('info');
     const accessToken = await requestAccessToken(instance);
 
-    const result = await s3ToolsStore.fetchS3Tools(accessToken, {
+    const result = await s3Store.fetchS3Tools(accessToken, {
       account: accountId,
       fn: 'bucket-info',
       bucketName: name,
@@ -180,15 +180,15 @@ export const S3FindBucket = observer(() => {
               <strong>Search terms:</strong>
               <br />
               <span style={{ display: 'inline-block', marginRight: '10px' }}>
-                Account: <em>{s3ToolsStore.findBucketData.account}</em>
+                Account: <em>{s3Store.findBucketData.account}</em>
               </span>
               <span style={{ display: 'inline-block', marginRight: '10px' }}>
-                Bucket {s3ToolsStore.findBucketData.searchBy === 'fullname' ? 'Name' : 'Prefix'}:{' '}
-                <em>{s3ToolsStore.findBucketData.query}</em>
+                Bucket {s3Store.findBucketData.searchBy === 'fullname' ? 'Name' : 'Prefix'}:{' '}
+                <em>{s3Store.findBucketData.query}</em>
               </span>
             </div>
             <Divider orientation="vertical" size="S" marginStart="size-300" marginEnd="size-300" />
-            <ActionButton onPress={() => s3ToolsStore.resetFindBucketData()}>Clear</ActionButton>
+            <ActionButton onPress={() => s3Store.resetFindBucketData()}>Clear</ActionButton>
           </Flex>
         </Well>
       )}

@@ -2,7 +2,7 @@ import { makeAutoObservable } from 'mobx';
 import { autoSave } from '../helpers';
 import { osmApiUrl } from '../config';
 
-class S3ToolsStore {
+class S3Store {
   findBucketData = {
     account: null,
     query: '',
@@ -181,4 +181,4 @@ class S3ToolsStore {
   }
 }
 
-export default S3ToolsStore;
+export default S3Store;
