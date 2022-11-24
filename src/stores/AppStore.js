@@ -34,7 +34,7 @@ class AppStore {
     }
   };
 
-  fetchAccounts = async (accessToken) => {
+  getAccounts = async (accessToken) => {
     if (this.accounts.length) {
       return this.accounts;
     }

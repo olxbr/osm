@@ -79,7 +79,7 @@ export const S3FindBucket = observer(() => {
         searchBy,
       });
 
-      if (result && result.buckets.length > 0) {
+      if (result && result.buckets?.length > 0) {
         s3Store.addFindBucketData({
           account: account.name,
           accountId: account.id,
@@ -173,7 +173,7 @@ export const S3FindBucket = observer(() => {
         </View>
       )}
 
-      {buckets.length > 0 && (
+      {buckets?.length > 0 && (
         <Well marginBottom="size-300">
           <Flex alignItems="center">
             <div>
@@ -193,7 +193,7 @@ export const S3FindBucket = observer(() => {
         </Well>
       )}
 
-      {buckets.length > 0 &&
+      {buckets?.length > 0 &&
         buckets.map((item, index) => {
           return (
             item.buckets.length > 0 && (

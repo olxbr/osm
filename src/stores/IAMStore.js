@@ -15,7 +15,7 @@ class IAMStore {
 
   constructor() {
     makeAutoObservable(this);
-    autoSave(this, 'osm_IAMStore');
+    autoSave(this, 'osm_IAMStore', true); // true -> sessionStorage
   }
 
   async fetchIAMTools(accessToken, params) {
@@ -84,7 +84,7 @@ class IAMStore {
     };
   }
 
-  getRole(roleName) {
+  getRoleFromList(roleName) {
     let role = null;
 
     for (let r of this.listRolesData.roles) {

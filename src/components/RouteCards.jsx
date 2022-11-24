@@ -1,7 +1,7 @@
 import { observer } from 'mobx-react-lite';
 import { Link as RouterLink } from 'react-router-dom';
 import { Heading, Flex, Link } from '@adobe/react-spectrum';
-import { routes } from '../routes';
+import { routes, flattenedRoutes } from '../routes';
 import '@spectrum-css/card';
 
 const renderRouteCards = (items) => {
@@ -49,14 +49,10 @@ const renderRouteCards = (items) => {
   });
 };
 
-const getRouteItems = (routes, routeName) => {
-  for (let route of routes) {
-    if (route.name === routeName) {
-      return route.items ?? [];
-    }
-
-    if (route.items) {
-      return getRouteItems(route.items, routeName);
+const getRouteItems = (routeName) => {
+  for (let route of flattenedRoutes) {
+    if (route.name === routeName && route.items?.length) {
+      return route.items;
     }
   }
 
@@ -67,7 +63,7 @@ export const RouteCards = observer(({ routeName }) => {
   let items = routes;
 
   if (routeName) {
-    items = getRouteItems(routes, routeName);
+    items = getRouteItems(routeName);
     return (
       <Flex wrap="wrap" gap="size-300">
         {renderRouteCards(items)}

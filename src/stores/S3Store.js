@@ -113,7 +113,7 @@ class S3Store {
     this.listBucketsData = value;
   }
 
-  getBucket(bucketName) {
+  getBucketFromList(bucketName) {
     let bucket = null;
 
     for (let b of this.listBucketsData.buckets) {
@@ -148,7 +148,7 @@ class S3Store {
       account: null,
       query: '',
       searchBy: '',
-      data: [],
+      buckets: [],
     };
   }
 

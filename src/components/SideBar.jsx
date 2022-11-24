@@ -16,7 +16,7 @@ export const SideBar = observer(() => {
   useEffect(() => {
     const getAccountList = async () => {
       const accessToken = await requestAccessToken(instance);
-      appStore.fetchAccounts(accessToken);
+      appStore.getAccounts(accessToken);
     };
 
     getAccountList();
@@ -27,7 +27,7 @@ export const SideBar = observer(() => {
       const selected = location.pathname === item.path ? ' is-selected' : '';
 
       if (item.isHidden) {
-        return '';
+        return null;
       }
 
       if (!item.isHeader) {
@@ -58,7 +58,7 @@ export const SideBar = observer(() => {
         );
       }
 
-      return '';
+      return null;
     });
   };
 

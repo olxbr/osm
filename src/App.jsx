@@ -7,20 +7,18 @@ import { CustomNavigationClient } from './helpers';
 import { Layout } from './components';
 import { SignIn } from './pages';
 import { useStores } from './stores';
-import { routes } from './routes';
+import { flattenedRoutes } from './routes';
 
-const renderRoutes = (items, final = []) => {
-  for (let item of items) {
-    if ('Component' in item) {
-      final.push(
-        <Route exact path={item.path} key={item.name} render={(props) => <item.Component />} />
+const renderRoutes = () => {
+  return flattenedRoutes.map((route) => {
+    if ('Component' in route) {
+      return (
+        <Route exact path={route.path} key={route.name} render={(props) => <route.Component />} />
       );
     }
-    if (item.items?.length) {
-      renderRoutes(item.items, final);
-    }
-  }
-  return final;
+
+    return null;
+  });
 };
 
 const App = observer(({ msalInstance }) => {
@@ -37,7 +35,7 @@ const App = observer(({ msalInstance }) => {
         </UnauthenticatedTemplate>
         <AuthenticatedTemplate>
           <Layout>
-            <Switch>{renderRoutes(routes)}</Switch>
+            <Switch>{renderRoutes()}</Switch>
           </Layout>
         </AuthenticatedTemplate>
       </Provider>

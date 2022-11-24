@@ -33,7 +33,7 @@ export const S3Bucket = observer(() => {
   const { bucketName } = useParams();
   const { appStore, s3Store } = useStores();
 
-  const bucket = s3Store.getBucket(bucketName);
+  const bucket = s3Store.getBucketFromList(bucketName);
 
   const [reviewStatus, setReviewStatus] = useState(bucket?.summary?.review_status ?? '');
   const [notes, setNotes] = useState(bucket?.summary?.notes ?? '');

@@ -2,7 +2,6 @@ import { Home } from './pages';
 import { S3Home, S3FindBucket, S3ListBuckets, S3Bucket } from './pages/S3';
 import { IAMHome, IAMListRoles, IAMRole } from './pages/IAM';
 import { EC2Home, EC2FindByIP } from './pages/EC2';
-import { Component } from 'react';
 
 export const routes = [
   {
@@ -99,3 +98,14 @@ export const routes = [
     ],
   },
 ];
+
+const flatRoutes = (routes, final = []) => {
+  for (const route of routes) {
+    final.push(route);
+    route.items?.length && flatRoutes(route.items, final);
+  }
+
+  return final;
+};
+
+export const flattenedRoutes = flatRoutes(routes);

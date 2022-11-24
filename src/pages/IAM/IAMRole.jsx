@@ -14,9 +14,7 @@ export const IAMRole = observer(() => {
   const { roleName } = useParams();
   const { appStore, iamStore } = useStores();
 
-  const role = iamStore.getRole(roleName);
-
-  console.log(role);
+  const role = iamStore.getRoleFromList(roleName);
 
   const [loading, setLoading] = useState(false);
 
