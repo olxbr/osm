@@ -36,12 +36,12 @@ import Search from '@spectrum-icons/workflow/Search';
 import { observer } from 'mobx-react-lite';
 import { useMsal } from '@azure/msal-react';
 import { useStores } from '../../stores';
-import { requestAccessToken } from '../../helpers';
+import { requestAccessToken, toDate } from '../../helpers';
 
 export const S3FindBucket = observer(() => {
   const { instance } = useMsal();
   const { appStore, s3Store } = useStores();
-  const { data } = s3Store.findBucketData;
+  const { buckets } = s3Store.findBucketData;
 
   const [currentAcc, setCurrentAcc] = useState(null);
   const [bucketName, setBucketName] = useState('');
@@ -173,7 +173,7 @@ export const S3FindBucket = observer(() => {
         </View>
       )}
 
-      {data.length > 0 && (
+      {buckets.length > 0 && (
         <Well marginBottom="size-300">
           <Flex alignItems="center">
             <div>
@@ -193,8 +193,8 @@ export const S3FindBucket = observer(() => {
         </Well>
       )}
 
-      {data.length > 0 &&
-        data.map((item, index) => {
+      {buckets.length > 0 &&
+        buckets.map((item, index) => {
           return (
             item.buckets.length > 0 && (
               <React.Fragment key={`acc-${index}`}>
@@ -225,7 +225,7 @@ export const S3FindBucket = observer(() => {
                               {bucket.name}
                             </a>
                           </Cell>
-                          <Cell>{new Date(bucket.creation_date).toLocaleString()}</Cell>
+                          <Cell>{toDate(bucket.creation_date, 'long')}</Cell>
                         </Row>
                       );
                     })}
@@ -275,7 +275,7 @@ export const S3FindBucket = observer(() => {
           );
         })}
 
-      {done && data.length <= 0 && (
+      {done && buckets.length <= 0 && (
         <View padding="size-500">
           <IllustratedMessage>
             <NoSearchResults />

@@ -26,12 +26,12 @@ import { ContentHeader } from '../../components/ContentHeader';
 import { observer } from 'mobx-react-lite';
 import { useMsal } from '@azure/msal-react';
 import { useStores } from '../../stores';
-import { requestAccessToken } from '../../helpers';
+import { requestAccessToken, toDate } from '../../helpers';
 
 export const S3ListBuckets = observer(() => {
   const { instance } = useMsal();
   const { appStore, s3Store } = useStores();
-  const { buckets, updated_at } = s3Store.listBucketsData;
+  const { buckets, updatedAt } = s3Store.listBucketsData;
 
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState({ active: false, msg: 'Loading...' });
@@ -119,11 +119,11 @@ export const S3ListBuckets = observer(() => {
       {buckets.length > 0 && (
         <Flex justifyContent="space-between" alignItems="center" marginBottom="size-300">
           <Text>
-            <strong>{buckets.length}</strong> buckets
+            <strong>{buckets.length}</strong> items
           </Text>
           <Flex alignItems="center">
             <Text marginEnd="size-200">
-              <strong>Last update:</strong> {new Date(updated_at + 'Z').toLocaleString()}
+              <strong>Last update:</strong> {toDate(updatedAt, 'medium')}
             </Text>
             <ActionButton onPress={() => listBuckets('update')}>
               <Refresh />
