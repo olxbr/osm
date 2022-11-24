@@ -1,7 +1,8 @@
-import { S3Home, S3FindBucket, S3ListBuckets } from './pages/S3';
-import { IAMHome } from './pages/IAM';
 import { Home } from './pages';
-import { S3Bucket } from './pages/S3/S3Bucket';
+import { S3Home, S3FindBucket, S3ListBuckets, S3Bucket } from './pages/S3';
+import { IAMHome, IAMListRoles, IAMRole } from './pages/IAM';
+import { EC2Home, EC2FindByIP } from './pages/EC2';
+import { Component } from 'react';
 
 export const routes = [
   {
@@ -19,7 +20,34 @@ export const routes = [
         description: 'Tools to analyze IAM Roles and Policies',
         path: '/tools/iam',
         Component: IAMHome,
-        items: []
+        items: [
+          {
+            name: 'List Roles',
+            description: 'List roles to review excessive permissions',
+            path: '/tools/iam/roles',
+            Component: IAMListRoles,
+          },
+          {
+            name: 'Role',
+            isHidden: true,
+            path: '/tools/iam/roles/:roleName',
+            Component: IAMRole,
+          },
+        ],
+      },
+      {
+        name: 'EC2',
+        description: 'EC2 Tools',
+        path: '/tools/ec2',
+        Component: EC2Home,
+        items: [
+          {
+            name: 'Find by IP',
+            description: "Find EC2/ELB by it's IP address",
+            path: '/tools/ec2/find-by-ip',
+            Component: EC2FindByIP,
+          },
+        ],
       },
       {
         name: 'S3',
@@ -35,7 +63,7 @@ export const routes = [
           },
           {
             name: 'List Buckets',
-            description: 'List all buckets in an Account',
+            description: 'List buckets in an Account for review',
             path: '/tools/s3/buckets',
             Component: S3ListBuckets,
           },

@@ -5,7 +5,7 @@ import { osmApiUrl } from '../config';
 class IAMStore {
   listRolesData = {
     account: null,
-    updated_at: null,
+    updatedAt: null,
     roles: [],
   };
   rolesSummary = {
@@ -49,6 +49,13 @@ class IAMStore {
     return data;
   }
 
+  async getRole(accessToken, params) {
+    params.fn = 'get-role';
+    const data = await this.fetchIAMTools(accessToken, params);
+    if (!data) return { role: {} };
+    return data;
+  }
+
   async listRolesSummary(accessToken, params) {
     params.fn = 'list-roles-summary';
     return await this.fetchIAMTools(accessToken, params);
@@ -67,15 +74,28 @@ class IAMStore {
     this.rolesSummary = value;
   }
 
+  mergeSummary() {}
+
   resetListRolesData() {
     this.listRolesData = {
       account: null,
-      updated_at: null,
+      updatedAt: null,
       roles: [],
     };
   }
 
-  mergeSummary() {}
+  getRole(roleName) {
+    let role = null;
+
+    for (let r of this.listRolesData.roles) {
+      if (r.RoleName === roleName) {
+        role = r;
+        break;
+      }
+    }
+
+    return role;
+  }
 }
 
 export default IAMStore;

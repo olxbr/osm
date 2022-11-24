@@ -3,11 +3,11 @@ import { View } from '@adobe/react-spectrum';
 import { ContentHeader } from '../../components/ContentHeader';
 import { RouteCards } from '../../components';
 
-export const IAMHome = observer(() => {
+export const EC2Home = observer(() => {
   return (
     <View>
-      <ContentHeader title="IAM" />
-      <RouteCards routeName="IAM" />
+      <ContentHeader title="EC2" />
+      <RouteCards routeName="EC2" />
     </View>
   );
 });

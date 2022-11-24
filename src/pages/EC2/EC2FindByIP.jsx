@@ -1,13 +1,11 @@
 import { observer } from 'mobx-react-lite';
 import { View } from '@adobe/react-spectrum';
 import { ContentHeader } from '../../components/ContentHeader';
-import { RouteCards } from '../../components';
 
-export const IAMHome = observer(() => {
+export const EC2FindByIP = observer(() => {
   return (
     <View>
-      <ContentHeader title="IAM" />
-      <RouteCards routeName="IAM" />
+      <ContentHeader title="Find EC2/ELB by IP" />
     </View>
   );
 });

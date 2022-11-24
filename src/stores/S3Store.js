@@ -6,11 +6,11 @@ class S3Store {
   findBucketData = {
     account: null,
     query: '',
-    data: [],
+    buckets: [],
   };
   listBucketsData = {
     account: null,
-    updated_at: null,
+    updatedAt: null,
     buckets: [],
   };
   bucketsSummary = {
@@ -20,7 +20,7 @@ class S3Store {
 
   constructor() {
     makeAutoObservable(this);
-    autoSave(this, 'osm_S3ToolsStore', true); // true -> sessionStorage
+    autoSave(this, 'osm_S3Store', true); // true -> sessionStorage
   }
 
   async fetchS3Tools(accessToken, params) {
@@ -106,26 +106,39 @@ class S3Store {
   }
 
   addFindBucketData(value) {
-    this.findBucketData.data.push(value);
+    this.findBucketData.buckets.push(value);
   }
 
   setListBucketsData(value) {
     this.listBucketsData = value;
   }
 
-  getBucketFromList(bucketName) {
+  getBucket(bucketName) {
+    let bucket = null;
+
     for (let b of this.listBucketsData.buckets) {
       if (b.name === bucketName) {
-        return b;
+        bucket = b;
+        break;
       }
     }
-    return null;
+
+    if (!bucket) {
+      for (let b of this.findBucketData.buckets) {
+        if (b.name === bucketName) {
+          bucket = b;
+          break;
+        }
+      }
+    }
+
+    return bucket;
   }
 
   resetListBucketsData() {
     this.listBucketsData = {
       account: null,
-      updated_at: null,
+      updatedAt: null,
       buckets: [],
     };
   }
@@ -161,7 +174,7 @@ class S3Store {
   }
 
   mergeSummary() {
-    const { account, updated_at, buckets } = this.listBucketsData;
+    const { account, updatedAt, buckets } = this.listBucketsData;
     let bucketsClone = JSON.parse(JSON.stringify(buckets));
 
     bucketsClone.map((b) => {
@@ -175,7 +188,7 @@ class S3Store {
 
     this.setListBucketsData({
       account,
-      updated_at,
+      updatedAt,
       buckets: bucketsClone,
     });
   }
