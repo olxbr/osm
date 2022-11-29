@@ -16,6 +16,7 @@ import {
   Flex,
   ActionButton,
   ProgressBar,
+  Link,
 } from '@adobe/react-spectrum';
 import Refresh from '@spectrum-icons/workflow/Refresh';
 import CheckmarkCircle from '@spectrum-icons/workflow/CheckmarkCircle';
@@ -80,7 +81,7 @@ export const S3ListBuckets = observer(() => {
 
   return (
     <View>
-      <ContentHeader title="List buckets in selected account" />
+      <ContentHeader title="S3 Buckets" />
       <View
         borderRadius="regular"
         paddingX="size-300"
@@ -97,7 +98,7 @@ export const S3ListBuckets = observer(() => {
           )}
         </View>
 
-        <View marginBottom="size-200">
+        <View marginBottom="size-100">
           <Button
             variant="cta"
             onPress={() => listBuckets()}
@@ -157,7 +158,9 @@ export const S3ListBuckets = observer(() => {
               return (
                 <Row key={bucket.name}>
                   <Cell>
-                    <RouterLink to={`/tools/s3/buckets/${bucket.name}`}>{bucket.name}</RouterLink>
+                    <Link isQuiet>
+                      <RouterLink to={`/tools/s3/buckets/${bucket.name}`}>{bucket.name}</RouterLink>
+                    </Link>
                   </Cell>
                   <Cell>{bucket.status}</Cell>
                   <Cell>{statusIcons[bucket.summary?.review_status]}</Cell>

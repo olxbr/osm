@@ -29,14 +29,15 @@ import {
   Well,
   ProgressCircle,
   ActionButton,
+  Link,
 } from '@adobe/react-spectrum';
 import NoSearchResults from '@spectrum-icons/illustrations/NoSearchResults';
-import { ContentHeader } from '../../components/ContentHeader';
 import Search from '@spectrum-icons/workflow/Search';
 import { observer } from 'mobx-react-lite';
 import { useMsal } from '@azure/msal-react';
 import { useStores } from '../../stores';
 import { requestAccessToken, toDate } from '../../helpers';
+import { ContentHeader } from '../../components/ContentHeader';
 
 export const S3FindBucket = observer(() => {
   const { instance } = useMsal();
@@ -59,8 +60,9 @@ export const S3FindBucket = observer(() => {
       account: appStore.account.name,
       query: bucketName,
       searchBy,
-      data: [],
+      buckets: [],
     });
+
     setDone(false);
 
     const accessToken = await requestAccessToken(instance);
@@ -124,7 +126,7 @@ export const S3FindBucket = observer(() => {
 
   return (
     <View>
-      <ContentHeader title={`Find a bucket in: ${appStore.account.name}`} />
+      <ContentHeader title="Find Bucket" />
 
       <View
         borderRadius="regular"
@@ -136,7 +138,6 @@ export const S3FindBucket = observer(() => {
           <Flex justifyContent="space-between">
             <RadioGroup
               isRequired
-              necessityIndicator="icon"
               isEmphasized
               label="Search by"
               orientation="horizontal"
@@ -219,11 +220,13 @@ export const S3FindBucket = observer(() => {
                       return (
                         <Row key={`${bucket.name}_${index}`}>
                           <Cell>
-                            <a
-                              href={`#${bucket.name}`}
-                              onClick={() => showBucketInfo(bucket.name, item.accountId)}>
-                              {bucket.name}
-                            </a>
+                            <Link isQuiet>
+                              <a
+                                href={`#${bucket.name}`}
+                                onClick={() => showBucketInfo(bucket.name, item.accountId)}>
+                                {bucket.name}
+                              </a>
+                            </Link>
                           </Cell>
                           <Cell>{toDate(bucket.creation_date, 'long')}</Cell>
                         </Row>

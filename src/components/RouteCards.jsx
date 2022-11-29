@@ -7,7 +7,7 @@ import '@spectrum-css/card';
 const renderRouteCards = (items) => {
   return items.map((route) => {
     if (route.name === 'Home' || route.isHidden) {
-      return '';
+      return null;
     }
 
     if (route.isHeader) {

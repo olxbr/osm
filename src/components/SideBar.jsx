@@ -10,7 +10,7 @@ import '@spectrum-css/sidenav';
 
 export const SideBar = observer(() => {
   const { instance } = useMsal();
-  const { appStore, s3Store, iamStore } = useStores();
+  const { appStore, s3Store, iamStore, ec2Store } = useStores();
   const location = useLocation();
 
   useEffect(() => {
@@ -64,9 +64,12 @@ export const SideBar = observer(() => {
 
   const handleAccountChange = (accountId) => {
     appStore.setAccount(accountId);
+
+    // reset lists from stores and local/session storage on account change
     s3Store.resetListBucketsData();
     s3Store.resetFindBucketData();
     iamStore.resetListRolesData();
+    ec2Store.resetFindInstanceData();
   };
 
   return (

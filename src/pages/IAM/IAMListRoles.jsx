@@ -16,11 +16,12 @@ import {
   Flex,
   ActionButton,
   ProgressBar,
+  Link,
 } from '@adobe/react-spectrum';
 import Refresh from '@spectrum-icons/workflow/Refresh';
-import CheckmarkCircle from '@spectrum-icons/workflow/CheckmarkCircle';
-import AlertCircleFilled from '@spectrum-icons/workflow/AlertCircleFilled';
-import CloseCircle from '@spectrum-icons/workflow/CloseCircle';
+// import CheckmarkCircle from '@spectrum-icons/workflow/CheckmarkCircle';
+// import AlertCircleFilled from '@spectrum-icons/workflow/AlertCircleFilled';
+// import CloseCircle from '@spectrum-icons/workflow/CloseCircle';
 import NoSearchResults from '@spectrum-icons/illustrations/NoSearchResults';
 import { ContentHeader } from '../../components';
 import { observer } from 'mobx-react-lite';
@@ -72,11 +73,11 @@ export const IAMListRoles = observer(() => {
     handleLoading(false);
   };
 
-  const statusIcons = {
-    notReviewed: <CloseCircle color="negative" size="S" />,
-    withCaveats: <AlertCircleFilled color="notice" size="S" />,
-    reviewed: <CheckmarkCircle color="positive" size="S" />,
-  };
+  // const statusIcons = {
+  //   notReviewed: <CloseCircle color="negative" size="S" />,
+  //   withCaveats: <AlertCircleFilled color="notice" size="S" />,
+  //   reviewed: <CheckmarkCircle color="positive" size="S" />,
+  // };
 
   return (
     <View>
@@ -97,7 +98,7 @@ export const IAMListRoles = observer(() => {
           )}
         </View>
 
-        <View marginBottom="size-200">
+        <View marginBottom="size-100">
           <Button
             variant="cta"
             onPress={() => listRoles()}
@@ -153,9 +154,11 @@ export const IAMListRoles = observer(() => {
               return (
                 <Row key={role.RoleName}>
                   <Cell>
-                    <RouterLink to={`/tools/iam/roles/${role.RoleName}`}>
-                      {role.RoleName}
-                    </RouterLink>
+                    <Link isQuiet>
+                      <RouterLink to={`/tools/iam/roles/${role.RoleName}`}>
+                        {role.RoleName}
+                      </RouterLink>
+                    </Link>
                   </Cell>
                   <Cell>{toDate(role.CreateDate)}</Cell>
                 </Row>

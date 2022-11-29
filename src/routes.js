@@ -42,7 +42,7 @@ export const routes = [
         items: [
           {
             name: 'Find by IP',
-            description: "Find EC2/ELB by it's IP address",
+            description: 'Find EC2 instance by public or private IP',
             path: '/tools/ec2/find-by-ip',
             Component: EC2FindByIP,
           },

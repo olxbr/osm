@@ -38,7 +38,6 @@ export const S3Bucket = observer(() => {
   const [reviewStatus, setReviewStatus] = useState(bucket?.summary?.review_status ?? '');
   const [notes, setNotes] = useState(bucket?.summary?.notes ?? '');
   const [loading, setLoading] = useState(false);
-
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const sendBucketSummary = async () => {
@@ -63,7 +62,6 @@ export const S3Bucket = observer(() => {
       s3Store.mergeSummary();
     }
 
-    console.log(result);
     setLoading(false);
     setDialogOpen(true);
   };
@@ -77,6 +75,7 @@ export const S3Bucket = observer(() => {
   useEffect(() => {
     const getBucketSummary = async () => {
       setLoading(true);
+
       const accessToken = await requestAccessToken(instance);
 
       const result = await s3Store.getBucketSummary(accessToken, {
@@ -84,12 +83,11 @@ export const S3Bucket = observer(() => {
         account: appStore.account.id,
       });
 
-      console.log(result);
       setLoading(false);
     };
 
     getBucketSummary();
-  }, [appStore, bucketName, instance, s3Store]);
+  }, [appStore, bucketName, instance, bucket, s3Store]);
 
   return (
     <View>
