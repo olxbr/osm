@@ -1,3 +1,7 @@
+:root {
+  --osm-light-gray: rgba(127, 127, 127, 0.2);
+}
+
 body {
   padding: 0;
   margin: 0;
@@ -17,4 +21,18 @@ h2.logo {
   line-height: 0.9em;
   margin: 0;
   margin-bottom: 30px;
+}
+
+.osm-table {
+  width: 100%;
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+
+.osm-table th,
+.osm-table td {
+  margin: 0;
+  text-align: left;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--osm-light-gray);
 }

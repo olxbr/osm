@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+// import { Link as RouterLink } from 'react-router-dom';
 import {
   Button,
   TextField,
@@ -18,18 +19,10 @@ import {
   IllustratedMessage,
   Flex,
   ProgressBar,
-  Dialog,
-  DialogContainer,
   Divider,
-  Tabs,
-  TabList,
-  TabPanels,
-  Item,
-  ButtonGroup,
   Well,
-  ProgressCircle,
   ActionButton,
-  Link,
+  // Link,
 } from '@adobe/react-spectrum';
 import NoSearchResults from '@spectrum-icons/illustrations/NoSearchResults';
 import Search from '@spectrum-icons/workflow/Search';
@@ -42,14 +35,12 @@ import { ContentHeader } from '../../components/ContentHeader';
 export const S3FindBucket = observer(() => {
   const { instance } = useMsal();
   const { appStore, s3Store } = useStores();
-  const { buckets } = s3Store.findBucketData;
+  const { data } = s3Store.findBucketData;
 
   const [currentAcc, setCurrentAcc] = useState(null);
   const [bucketName, setBucketName] = useState('');
   const [searchBy, setSearchBy] = useState('fullname');
   const [done, setDone] = useState(false);
-  const [dialog, setDialog] = useState(null);
-  const [bucketInfo, setBucketInfo] = useState(null);
 
   const findBucket = async () => {
     if (bucketName.length < 3) {
@@ -60,7 +51,7 @@ export const S3FindBucket = observer(() => {
       account: appStore.account.name,
       query: bucketName,
       searchBy,
-      buckets: [],
+      data: [],
     });
 
     setDone(false);
@@ -96,32 +87,6 @@ export const S3FindBucket = observer(() => {
 
     setCurrentAcc(null);
     setDone(true);
-  };
-
-  const showBucketInfo = async (name, accountId) => {
-    setDialog('info');
-    const accessToken = await requestAccessToken(instance);
-
-    const result = await s3Store.fetchS3Tools(accessToken, {
-      account: accountId,
-      fn: 'bucket-info',
-      bucketName: name,
-    });
-
-    if (result) {
-      setBucketInfo(result.bucket);
-    } else {
-      setDialog(null);
-    }
-  };
-
-  const clearDialog = () => {
-    setDialog(null);
-    setBucketInfo(null);
-  };
-
-  const formatJson = (json) => {
-    return JSON.stringify(JSON.parse(json === '' ? '{}' : json), null, 2);
   };
 
   return (
@@ -174,7 +139,7 @@ export const S3FindBucket = observer(() => {
         </View>
       )}
 
-      {buckets?.length > 0 && (
+      {data?.length > 0 && (
         <Well marginBottom="size-300">
           <Flex alignItems="center">
             <div>
@@ -194,8 +159,8 @@ export const S3FindBucket = observer(() => {
         </Well>
       )}
 
-      {buckets?.length > 0 &&
-        buckets.map((item, index) => {
+      {data?.length > 0 &&
+        data.map((item, index) => {
           return (
             item.buckets.length > 0 && (
               <React.Fragment key={`acc-${index}`}>
@@ -203,7 +168,6 @@ export const S3FindBucket = observer(() => {
                   <Heading level={3}>{item.account}</Heading>
                 </Flex>
                 <TableView
-                  // selectionMode="multiple"
                   overflowMode="wrap"
                   marginBottom="size-400"
                   aria-label={`${item.account} buckets`}>
@@ -216,17 +180,16 @@ export const S3FindBucket = observer(() => {
                     </Column>
                   </TableHeader>
                   <TableBody>
-                    {item.buckets.map((bucket, index) => {
+                    {item.buckets.map((bucket) => {
                       return (
-                        <Row key={`${bucket.name}_${index}`}>
+                        <Row key={bucket.name}>
                           <Cell>
-                            <Link isQuiet>
-                              <a
-                                href={`#${bucket.name}`}
-                                onClick={() => showBucketInfo(bucket.name, item.accountId)}>
+                            {bucket.name}
+                            {/* <Link isQuiet>
+                              <RouterLink to={`/tools/s3/buckets/${item.account}/${bucket.name}`}>
                                 {bucket.name}
-                              </a>
-                            </Link>
+                              </RouterLink>
+                            </Link> */}
                           </Cell>
                           <Cell>{toDate(bucket.creation_date, 'long')}</Cell>
                         </Row>
@@ -234,51 +197,12 @@ export const S3FindBucket = observer(() => {
                     })}
                   </TableBody>
                 </TableView>
-                <DialogContainer onDismiss={clearDialog}>
-                  {dialog === 'info' && (
-                    <Dialog>
-                      <Heading>{bucketInfo ? bucketInfo.name : '...'}</Heading>
-                      <Divider marginBottom="size-300" />
-                      <Content>
-                        {bucketInfo ? (
-                          <Tabs aria-label="Bucket Info">
-                            <TabList>
-                              <Item key="Status">Status</Item>
-                              <Item key="Policy">Policy</Item>
-                            </TabList>
-                            <TabPanels marginTop="size-300">
-                              <Item key="Status">
-                                <Well>
-                                  <pre>{bucketInfo.public_status}</pre>
-                                </Well>
-                              </Item>
-                              <Item key="Policy">
-                                <Well>
-                                  <pre>{formatJson(bucketInfo.policy)}</pre>
-                                </Well>
-                              </Item>
-                            </TabPanels>
-                          </Tabs>
-                        ) : (
-                          <Flex justifyContent="center">
-                            <ProgressCircle aria-label="Loading…" size="L" isIndeterminate />
-                          </Flex>
-                        )}
-                      </Content>
-                      <ButtonGroup>
-                        <Button variant="link" onPress={clearDialog}>
-                          Close
-                        </Button>
-                      </ButtonGroup>
-                    </Dialog>
-                  )}
-                </DialogContainer>
               </React.Fragment>
             )
           );
         })}
 
-      {done && buckets.length <= 0 && (
+      {done && data.length <= 0 && (
         <View padding="size-500">
           <IllustratedMessage>
             <NoSearchResults />

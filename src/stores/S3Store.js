@@ -6,7 +6,7 @@ class S3Store {
   findBucketData = {
     account: null,
     query: '',
-    buckets: [],
+    data: [],
   };
   listBucketsData = {
     account: null,
@@ -35,7 +35,7 @@ class S3Store {
       });
 
       if (!res.ok) {
-        console.log(`Error fetching /s3-tools: ${res.statusText}`);
+        console.log(`Error fetching /s3-tools: (${res.status})`);
         return null;
       }
 
@@ -91,6 +91,11 @@ class S3Store {
     return await this.fetchS3Tools(accessToken, params);
   }
 
+  async getBucketInfo(accessToken, params) {
+    params.fn = 'bucket-info';
+    return await this.fetchS3Tools(accessToken, params);
+  }
+
   async getBucketSummary(accessToken, params) {
     params.fn = 'get-bucket-summary';
     return await this.fetchS3Tools(accessToken, params);
@@ -106,7 +111,7 @@ class S3Store {
   }
 
   addFindBucketData(value) {
-    this.findBucketData.buckets.push(value);
+    this.findBucketData.data.push(value);
   }
 
   setListBucketsData(value) {
@@ -124,10 +129,12 @@ class S3Store {
     }
 
     if (!bucket) {
-      for (let b of this.findBucketData.buckets) {
-        if (b.name === bucketName) {
-          bucket = b;
-          break;
+      for (let d of this.findBucketData.data) {
+        for (let b of d.buckets) {
+          if (b.name === bucketName) {
+            bucket = b;
+            break;
+          }
         }
       }
     }
@@ -148,7 +155,7 @@ class S3Store {
       account: null,
       query: '',
       searchBy: '',
-      buckets: [],
+      data: [],
     };
   }
 
@@ -181,6 +188,7 @@ class S3Store {
       for (let s of this.bucketsSummary.buckets) {
         if (b.name === s.bucket) {
           b.summary = s;
+          b.reviewStatus = s.review_status;
         }
       }
       return b;

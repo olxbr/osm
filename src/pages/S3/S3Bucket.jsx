@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { observer } from 'mobx-react-lite';
 import { useParams, useHistory } from 'react-router-dom';
 import {
@@ -16,7 +16,12 @@ import {
   Divider,
   Content,
   ButtonGroup,
-  ProgressCircle,
+  ProgressBar,
+  Tabs,
+  TabList,
+  TabPanels,
+  Well,
+  Item,
 } from '@adobe/react-spectrum';
 import BackAndroid from '@spectrum-icons/workflow/BackAndroid';
 import CheckmarkCircle from '@spectrum-icons/workflow/CheckmarkCircle';
@@ -26,6 +31,7 @@ import { useMsal } from '@azure/msal-react';
 import { useStores } from '../../stores';
 import { requestAccessToken } from '../../helpers';
 import { ContentHeader, FormFrame, ItemNotFound } from '../../components';
+import { formatJson } from '../../helpers';
 
 export const S3Bucket = observer(() => {
   const history = useHistory();
@@ -33,17 +39,25 @@ export const S3Bucket = observer(() => {
   const { bucketName } = useParams();
   const { appStore, s3Store } = useStores();
 
-  const bucket = s3Store.getBucketFromList(bucketName);
+  const bucket = useMemo(() => {
+    return s3Store.getBucketFromList(bucketName) || { name: bucketName, summary: null };
+  }, [s3Store, bucketName]);
 
-  const [reviewStatus, setReviewStatus] = useState(bucket?.summary?.review_status ?? '');
-  const [notes, setNotes] = useState(bucket?.summary?.notes ?? '');
-  const [loading, setLoading] = useState(false);
+  const [reviewStatus, setReviewStatus] = useState(bucket.summary?.review_status ?? '');
+  const [notes, setNotes] = useState(bucket.summary?.notes ?? '');
+
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [bucketInfo, setBucketInfo] = useState(null);
+  const [loading, setLoading] = useState({ active: false, msg: 'Loading...' });
+
+  const handleLoading = (active, msg = 'Loading...') => {
+    setLoading({ active, msg });
+  };
 
   const sendBucketSummary = async () => {
-    setLoading(true);
     const accessToken = await requestAccessToken(instance);
 
+    handleLoading(true, 'Updating bucket review');
     const result = await s3Store.putBucketSummary(
       accessToken,
       {
@@ -62,7 +76,7 @@ export const S3Bucket = observer(() => {
       s3Store.mergeSummary();
     }
 
-    setLoading(false);
+    handleLoading(false);
     setDialogOpen(true);
   };
 
@@ -73,21 +87,39 @@ export const S3Bucket = observer(() => {
   };
 
   useEffect(() => {
-    const getBucketSummary = async () => {
-      setLoading(true);
-
+    const getBucketData = async () => {
       const accessToken = await requestAccessToken(instance);
 
-      const result = await s3Store.getBucketSummary(accessToken, {
-        bucketName,
-        account: appStore.account.id,
-      });
+      if (!bucket.summary) {
+        handleLoading(true, 'Loading summary');
 
-      setLoading(false);
+        const summaryResult = await s3Store.getBucketSummary(accessToken, {
+          bucketName,
+          account: appStore.account.id,
+        });
+
+        if (summaryResult) {
+          setReviewStatus(summaryResult.review_status);
+          setNotes(summaryResult.notes);
+        }
+      }
+
+      if (!bucketInfo) {
+        handleLoading(true, 'Get bucket data');
+
+        const infoResult = await s3Store.getBucketInfo(accessToken, {
+          bucketName,
+          account: appStore.account.id,
+        });
+
+        infoResult && setBucketInfo(infoResult.bucket);
+      }
+
+      handleLoading(false);
     };
 
-    getBucketSummary();
-  }, [appStore, bucketName, instance, bucket, s3Store]);
+    getBucketData();
+  }, [appStore, bucketName, bucketInfo, instance, s3Store, bucket]);
 
   return (
     <View>
@@ -123,12 +155,58 @@ export const S3Bucket = observer(() => {
               description="Enter any notes about bucket review."
             />
             <Flex>
-              <Button variant="cta" onPress={sendBucketSummary} isDisabled={loading}>
-                Send
+              <Button variant="cta" onPress={sendBucketSummary} isDisabled={loading.active}>
+                Update
               </Button>
-              {loading && <ProgressCircle aria-label="Loading…" size="M" isIndeterminate />}
             </Flex>
           </FormFrame>
+
+          {loading.active && (
+            <View padding="size-500" marginBottom="size-400">
+              <Flex justifyContent="center" alignItems="center" direction="column">
+                <Content marginBottom="size-100">{loading.msg}</Content>
+                <ProgressBar aria-label="Loading" isIndeterminate />
+              </Flex>
+            </View>
+          )}
+
+          {bucketInfo && (
+            <Tabs aria-label="Bucket Info">
+              <TabList>
+                <Item key="Status">Public Status</Item>
+                <Item key="Tags">Tags</Item>
+                <Item key="Policy">Policy</Item>
+              </TabList>
+              <TabPanels marginTop="size-300">
+                <Item key="Status">
+                  <table className="osm-table">
+                    <tbody>
+                      <tr>
+                        <td>{bucketInfo.public_status}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </Item>
+                <Item key="Tags">
+                  <table className="osm-table">
+                    <tbody>
+                      {bucketInfo.tags.map((tag) => (
+                        <tr key={tag.Key}>
+                          <td>{tag.Key}</td>
+                          <td>{tag.Value}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </Item>
+                <Item key="Policy">
+                  <Well>
+                    <pre>{formatJson(bucketInfo.policy)}</pre>
+                  </Well>
+                </Item>
+              </TabPanels>
+            </Tabs>
+          )}
 
           <DialogContainer onDismiss={() => setDialogOpen(false)}>
             {dialogOpen && (

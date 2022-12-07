@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
+import { useCollator } from 'react-aria';
 import {
   View,
   Text,
@@ -17,6 +18,7 @@ import {
   ActionButton,
   ProgressBar,
   Link,
+  useAsyncList,
 } from '@adobe/react-spectrum';
 import Refresh from '@spectrum-icons/workflow/Refresh';
 import CheckmarkCircle from '@spectrum-icons/workflow/CheckmarkCircle';
@@ -31,12 +33,29 @@ import { requestAccessToken, toDate } from '../../helpers';
 
 export const S3ListBuckets = observer(() => {
   const { instance } = useMsal();
+  const collator = useCollator({ numeric: true });
   const { appStore, s3Store } = useStores();
   const { buckets, updatedAt } = s3Store.listBucketsData;
 
+  const bucketList = useAsyncList({
+    async load({ signal }) {
+      return { items: buckets };
+    },
+    async sort({ items, sortDescriptor }) {
+      return {
+        items: items.sort((a, b) => {
+          let cmp = collator.compare(a[sortDescriptor.column], b[sortDescriptor.column]);
+          if (sortDescriptor.direction === 'descending') {
+            cmp *= -1;
+          }
+          return cmp;
+        }),
+      };
+    },
+  });
+
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState({ active: false, msg: 'Loading...' });
-  // const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
 
   const handleLoading = (active, msg = 'Loading...') => {
     setLoading({ active, msg });
@@ -71,12 +90,37 @@ export const S3ListBuckets = observer(() => {
 
     setDone(true);
     handleLoading(false);
+
+    window.location.reload(); // TODO: Remove this quirk fix for empty list
   };
 
   const statusIcons = {
     notReviewed: <CloseCircle color="negative" size="S" />,
     withCaveats: <AlertCircleFilled color="notice" size="S" />,
     reviewed: <CheckmarkCircle color="positive" size="S" />,
+  };
+
+  const renderColumn = (key, item) => {
+    if (key === 'name') {
+      return (
+        <Cell>
+          <Link isQuiet>
+            <RouterLink to={`/tools/s3/buckets/${item[key]}`}>{item[key]}</RouterLink>
+          </Link>
+          {}
+        </Cell>
+      );
+    }
+
+    if (key === 'reviewStatus') {
+      return <Cell>{statusIcons[item.reviewStatus]}</Cell>;
+    }
+
+    if (key === 'creation_date') {
+      return <Cell>{new Date(item.creation_date).toLocaleString()}</Cell>;
+    }
+
+    return <Cell>{item[key]}</Cell>;
   };
 
   return (
@@ -136,38 +180,23 @@ export const S3ListBuckets = observer(() => {
 
       {buckets.length > 0 && (
         <TableView
-          // selectionMode="single"
-          // selectedKeys={selectedKeys}
-          // onSelectionChange={setSelectedKeys}
+          sortDescriptor={bucketList.sortDescriptor}
+          onSortChange={bucketList.sort}
           marginBottom="size-400"
           aria-label={`${appStore.account.name} buckets`}>
           <TableHeader>
-            <Column key="name" align="start">
+            <Column key="name" align="start" allowsSorting>
               Bucket Name
             </Column>
-            <Column key="status">Bucket Status</Column>
-            <Column key="reviewed" align="center">
+            <Column key="reviewStatus" align="center" allowsSorting>
               Reviewed
             </Column>
-            <Column key="creation_date" align="end">
+            <Column key="creation_date" align="end" allowsSorting>
               Creation Date
             </Column>
           </TableHeader>
-          <TableBody>
-            {buckets.map((bucket) => {
-              return (
-                <Row key={bucket.name}>
-                  <Cell>
-                    <Link isQuiet>
-                      <RouterLink to={`/tools/s3/buckets/${bucket.name}`}>{bucket.name}</RouterLink>
-                    </Link>
-                  </Cell>
-                  <Cell>{bucket.status}</Cell>
-                  <Cell>{statusIcons[bucket.summary?.review_status]}</Cell>
-                  <Cell>{new Date(bucket.creation_date).toLocaleString()}</Cell>
-                </Row>
-              );
-            })}
+          <TableBody items={bucketList.items} loadingState={bucketList.loadingState}>
+            {(item) => <Row key={item.name}>{(key) => renderColumn(key, item)}</Row>}
           </TableBody>
         </TableView>
       )}
