@@ -12,4 +12,4 @@ run:
 	yarn start
 
 deploy: build
-	aws s3 sync ./build s3://${AWS_S3_BUCKET}
+	aws s3 sync ./build s3://${AWS_S3_BUCKET} --cache-control max-age=10800,public
