@@ -188,7 +188,7 @@ class S3Store {
       for (let s of this.bucketsSummary.buckets) {
         if (b.name === s.bucket) {
           b.summary = s;
-          b.reviewStatus = s.review_status;
+          b.compliance = s.compliance;
         }
       }
       return b;

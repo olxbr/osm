@@ -22,7 +22,6 @@ import {
 } from '@adobe/react-spectrum';
 import Refresh from '@spectrum-icons/workflow/Refresh';
 import CheckmarkCircle from '@spectrum-icons/workflow/CheckmarkCircle';
-import AlertCircleFilled from '@spectrum-icons/workflow/AlertCircleFilled';
 import CloseCircle from '@spectrum-icons/workflow/CloseCircle';
 import NoSearchResults from '@spectrum-icons/illustrations/NoSearchResults';
 import { ContentHeader } from '../../components/ContentHeader';
@@ -95,9 +94,8 @@ export const S3ListBuckets = observer(() => {
   };
 
   const statusIcons = {
-    notReviewed: <CloseCircle color="negative" size="S" />,
-    withCaveats: <AlertCircleFilled color="notice" size="S" />,
-    reviewed: <CheckmarkCircle color="positive" size="S" />,
+    no: <CloseCircle color="negative" size="S" />,
+    yes: <CheckmarkCircle color="positive" size="S" />,
   };
 
   const renderColumn = (key, item) => {
@@ -112,8 +110,8 @@ export const S3ListBuckets = observer(() => {
       );
     }
 
-    if (key === 'reviewStatus') {
-      return <Cell>{statusIcons[item.reviewStatus]}</Cell>;
+    if (key === 'compliance') {
+      return <Cell>{statusIcons[item.compliance]}</Cell>;
     }
 
     if (key === 'creation_date') {
@@ -188,8 +186,8 @@ export const S3ListBuckets = observer(() => {
             <Column key="name" align="start" allowsSorting>
               Bucket Name
             </Column>
-            <Column key="reviewStatus" align="center" allowsSorting>
-              Reviewed
+            <Column key="compliance" align="center" allowsSorting>
+              Compliance
             </Column>
             <Column key="creation_date" align="end" allowsSorting>
               Creation Date

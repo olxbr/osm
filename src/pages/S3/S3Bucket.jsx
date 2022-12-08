@@ -25,7 +25,6 @@ import {
 } from '@adobe/react-spectrum';
 import BackAndroid from '@spectrum-icons/workflow/BackAndroid';
 import CheckmarkCircle from '@spectrum-icons/workflow/CheckmarkCircle';
-import AlertCircleFilled from '@spectrum-icons/workflow/AlertCircleFilled';
 import CloseCircle from '@spectrum-icons/workflow/CloseCircle';
 import { useMsal } from '@azure/msal-react';
 import { useStores } from '../../stores';
@@ -43,7 +42,7 @@ export const S3Bucket = observer(() => {
     return s3Store.getBucketFromList(bucketName) || { name: bucketName, summary: null };
   }, [s3Store, bucketName]);
 
-  const [reviewStatus, setReviewStatus] = useState(bucket.summary?.review_status ?? '');
+  const [compliance, setCompliance] = useState(bucket.summary?.compliance ?? '');
   const [notes, setNotes] = useState(bucket.summary?.notes ?? '');
 
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -62,7 +61,7 @@ export const S3Bucket = observer(() => {
       accessToken,
       {
         bucketName,
-        reviewStatus,
+        compliance,
         notes,
       },
       { account: appStore.account.id }
@@ -70,7 +69,7 @@ export const S3Bucket = observer(() => {
 
     if (result.message && result.message === 'success') {
       s3Store.updateBucketSummary(bucketName, {
-        review_status: reviewStatus,
+        compliance,
         notes,
       });
       s3Store.mergeSummary();
@@ -81,9 +80,8 @@ export const S3Bucket = observer(() => {
   };
 
   const statusIcons = {
-    notReviewed: <CloseCircle color="negative" />,
-    withCaveats: <AlertCircleFilled color="notice" />,
-    reviewed: <CheckmarkCircle color="positive" />,
+    no: <CloseCircle color="negative" />,
+    yes: <CheckmarkCircle color="positive" />,
   };
 
   useEffect(() => {
@@ -99,7 +97,7 @@ export const S3Bucket = observer(() => {
         });
 
         if (summaryResult) {
-          setReviewStatus(summaryResult.review_status);
+          setCompliance(summaryResult.compliance);
           setNotes(summaryResult.notes);
         }
       }
@@ -128,7 +126,7 @@ export const S3Bucket = observer(() => {
           <BackAndroid />
         </ActionButton>
         <Text marginEnd="size-200">{bucketName}</Text>
-        {bucket && statusIcons[reviewStatus]}
+        {bucket && statusIcons[compliance]}
       </ContentHeader>
 
       {bucket && (
@@ -138,13 +136,12 @@ export const S3Bucket = observer(() => {
               isRequired
               necessityIndicator="icon"
               isEmphasized
-              label="Review Status"
+              label="Compliance"
               orientation="horizontal"
-              value={reviewStatus}
-              onChange={setReviewStatus}>
-              <Radio value="notReviewed">Without review</Radio>
-              <Radio value="withCaveats">Reviewed with caveats</Radio>
-              <Radio value="reviewed">Reviewed</Radio>
+              value={compliance}
+              onChange={setCompliance}>
+              <Radio value="yes">Yes</Radio>
+              <Radio value="no">No</Radio>
             </RadioGroup>
 
             <TextArea
