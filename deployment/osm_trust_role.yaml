@@ -28,14 +28,28 @@ Resources:
                 Resource: 'arn:aws:s3:::*'
               - Effect: Allow
                 Action:
-                  - iam:ListRoles
-                  - iam:GetRole
-                  - iam:ListAttachedRolePolicies
                   - iam:GetPolicy
                   - iam:GetPolicyVersion
+                  - iam:GetRole
+                  - iam:GetRolePolicy
+                  - iam:ListAttachedRolePolicies
+                  - iam:ListPolicies
                   - iam:ListRolePolicies
-                  - iam:GetRolePolic
                 Resource: 'arn:aws:iam:::*'
+              - Effect: Allow
+                Action:
+                  - iam:ListRoles
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - ec2:Describe*
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - ssm:SendCommand
+                Resource:
+                  - arn:aws:ssm:*:*:document/*
+                  - arn:aws:ec2:*:*:instance/*
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
