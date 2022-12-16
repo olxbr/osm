@@ -13,6 +13,8 @@
     "@adobe/react-spectrum": "^3.21.1",
     "@azure/msal-browser": "^2.28.1",
     "@azure/msal-react": "^1.4.5",
+    "@cloudscape-design/components": "^3.0.141",
+    "@cloudscape-design/global-styles": "^1.0.6",
     "@spectrum-css/card": "^5.0.2",
     "@spectrum-css/sidenav": "^3.0.24",
     "@spectrum-icons/illustrations": "^3.4.0",

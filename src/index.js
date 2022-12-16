@@ -5,6 +5,7 @@ import { PublicClientApplication } from '@azure/msal-browser';
 import { StoresProvider } from './stores';
 import { msalConfig } from './config';
 import App from './App';
+import '@cloudscape-design/global-styles/index.css';
 import './index.css';
 
 const msalInstance = new PublicClientApplication(msalConfig);
