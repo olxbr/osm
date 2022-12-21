@@ -8,7 +8,7 @@ Parameters:
   OsmLambdaMainAccountId:
     Type: String
     Default: ''
-    Description: Main account id where OSM lambda is located
+    Description: Main account id where osm lambdas are located
 
 Resources:
   OsmTrustRole:
@@ -55,9 +55,7 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              AWS: !Sub
-                - 'arn:aws:iam::${MainAccountId}:root'
-                - { MainAccountId: !Ref OsmLambdaMainAccountId }
+              AWS: !Sub arn:aws:iam::${OsmLambdaMainAccountId}:root
             Action: sts:AssumeRole
       Tags:
         - Key: 'application'
