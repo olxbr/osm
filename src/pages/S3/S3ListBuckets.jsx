@@ -18,7 +18,6 @@ import {
   ActionButton,
   ProgressBar,
   Link,
-  useAsyncList,
 } from '@adobe/react-spectrum';
 import Refresh from '@spectrum-icons/workflow/Refresh';
 import CheckmarkCircle from '@spectrum-icons/workflow/CheckmarkCircle';
@@ -28,36 +27,37 @@ import { ContentHeader } from '../../components/ContentHeader';
 import { observer } from 'mobx-react-lite';
 import { useMsal } from '@azure/msal-react';
 import { useStores } from '../../stores';
-import { requestAccessToken, toDate } from '../../helpers';
+import { requestAccessToken, toDate, useSessionStorage } from '../../helpers';
 
 export const S3ListBuckets = observer(() => {
   const { instance } = useMsal();
-  const collator = useCollator({ numeric: true });
   const { appStore, s3Store } = useStores();
   const { buckets, updatedAt } = s3Store.listBucketsData;
-
-  const bucketList = useAsyncList({
-    async load({ signal }) {
-      return { items: buckets };
-    },
-    async sort({ items, sortDescriptor }) {
-      return {
-        items: items.sort((a, b) => {
-          let cmp = collator.compare(a[sortDescriptor.column], b[sortDescriptor.column]);
-          if (sortDescriptor.direction === 'descending') {
-            cmp *= -1;
-          }
-          return cmp;
-        }),
-      };
-    },
-  });
+  const collator = useCollator({ numeric: true });
 
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState({ active: false, msg: 'Loading...' });
+  const [descriptor, setDescriptor] = useSessionStorage();
 
   const handleLoading = (active, msg = 'Loading...') => {
     setLoading({ active, msg });
+  };
+
+  const sortBuckets = (opts) => {
+    const { column, direction } = opts;
+    const dataCopy = JSON.parse(JSON.stringify(s3Store.listBucketsData));
+    const { buckets } = dataCopy;
+
+    buckets.sort((a, b) => {
+      let cmp = collator.compare(a[column], b[column]);
+      if (direction === 'descending') {
+        cmp *= -1;
+      }
+      return cmp;
+    });
+
+    setDescriptor(opts);
+    s3Store.setListBucketsData({ ...dataCopy, buckets });
   };
 
   const listBuckets = async (mode = 'latest') => {
@@ -89,36 +89,11 @@ export const S3ListBuckets = observer(() => {
 
     setDone(true);
     handleLoading(false);
-
-    window.location.reload(); // TODO: Remove this quirk fix for empty list
   };
 
   const statusIcons = {
     no: <CloseCircle color="negative" size="S" />,
     yes: <CheckmarkCircle color="positive" size="S" />,
-  };
-
-  const renderColumn = (key, item) => {
-    if (key === 'name') {
-      return (
-        <Cell>
-          <Link isQuiet>
-            <RouterLink to={`/tools/s3/buckets/${item[key]}`}>{item[key]}</RouterLink>
-          </Link>
-          {}
-        </Cell>
-      );
-    }
-
-    if (key === 'compliance') {
-      return <Cell>{statusIcons[item.compliance]}</Cell>;
-    }
-
-    if (key === 'creation_date') {
-      return <Cell>{new Date(item.creation_date).toLocaleString()}</Cell>;
-    }
-
-    return <Cell>{item[key]}</Cell>;
   };
 
   return (
@@ -178,8 +153,8 @@ export const S3ListBuckets = observer(() => {
 
       {buckets.length > 0 && (
         <TableView
-          sortDescriptor={bucketList.sortDescriptor}
-          onSortChange={bucketList.sort}
+          sortDescriptor={descriptor}
+          onSortChange={(opts) => sortBuckets(opts)}
           marginBottom="size-400"
           aria-label={`${appStore.account.name} buckets`}>
           <TableHeader>
@@ -193,8 +168,18 @@ export const S3ListBuckets = observer(() => {
               Creation Date
             </Column>
           </TableHeader>
-          <TableBody items={bucketList.items} loadingState={bucketList.loadingState}>
-            {(item) => <Row key={item.name}>{(key) => renderColumn(key, item)}</Row>}
+          <TableBody>
+            {buckets.map((bucket) => (
+              <Row key={bucket.name}>
+                <Cell>
+                  <Link isQuiet>
+                    <RouterLink to={`/tools/s3/buckets/${bucket.name}`}>{bucket.name}</RouterLink>
+                  </Link>
+                </Cell>
+                <Cell>{statusIcons[bucket.compliance]}</Cell>
+                <Cell>{new Date(bucket.creation_date).toLocaleString()}</Cell>
+              </Row>
+            ))}
           </TableBody>
         </TableView>
       )}
