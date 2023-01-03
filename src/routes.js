@@ -76,27 +76,27 @@ export const routes = [
       },
     ],
   },
-  {
-    name: 'Services',
-    description: 'Security related services',
-    isHeader: true,
-    items: [
-      {
-        name: 'SIEM',
-        description: 'Security Information and Event Management',
-        path: '/services/siem',
-        Component: () => <div>SIEM</div>,
-        items: [],
-      },
-      {
-        name: 'Security Hub',
-        description: 'AWS Security Hub findings',
-        path: '/services/security-hub',
-        Component: () => <div>Security Hub</div>,
-        items: [],
-      },
-    ],
-  },
+  // {
+  //   name: 'Services',
+  //   description: 'Security related services',
+  //   isHeader: true,
+  //   items: [
+  //     {
+  //       name: 'SIEM',
+  //       description: 'Security Information and Event Management',
+  //       path: '/services/siem',
+  //       Component: () => <div>SIEM</div>,
+  //       items: [],
+  //     },
+  //     {
+  //       name: 'Security Hub',
+  //       description: 'AWS Security Hub findings',
+  //       path: '/services/security-hub',
+  //       Component: () => <div>Security Hub</div>,
+  //       items: [],
+  //     },
+  //   ],
+  // },
 ];
 
 const flatRoutes = (routes, final = []) => {
